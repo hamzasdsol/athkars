@@ -1,4 +1,4 @@
-package com.app.athkar.athkar_list
+package com.app.athkar.athkar_list.presentation
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

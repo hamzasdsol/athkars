@@ -1,4 +1,4 @@
-package com.app.athkar.edit_prayer
+package com.app.athkar.edit_prayer.presentation
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

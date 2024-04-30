@@ -1,4 +1,4 @@
-package com.app.athkar.athkar_list
+package com.app.athkar.athkar_list.presentation
 
 data class AthkarListState(
     val athkars: List<Athkar> = emptyList()
