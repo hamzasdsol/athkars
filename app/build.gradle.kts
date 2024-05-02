@@ -103,6 +103,12 @@ dependencies {
     // Compose Destinations
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
+    
+    //Media3
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
+    implementation(libs.media3.exoplayer.dash)
+
 }
 
 ksp {

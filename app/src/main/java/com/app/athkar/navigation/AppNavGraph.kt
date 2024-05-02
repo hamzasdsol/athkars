@@ -54,6 +54,7 @@ fun NavGraphBuilder.appNavGraph(navController: NavController, startDestination: 
             ExportScreen(
                 state = exportViewModel.state.value,
                 onEvent = exportViewModel::onEvent,
+                uiEvent = exportViewModel.uiEvent,
                 navHostController = destinationsNavigator(navController)
             )
         }
