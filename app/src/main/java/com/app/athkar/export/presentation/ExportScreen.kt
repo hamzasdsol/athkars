@@ -227,7 +227,7 @@ fun ExportScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
-                onEvent(ExportViewModelEvent.ExportVideo(context, picture))
+                onEvent(ExportViewModelEvent.ExportVideo(context, picture, state.audioUrl))
             }) {
                 Text("Export Video")
             }

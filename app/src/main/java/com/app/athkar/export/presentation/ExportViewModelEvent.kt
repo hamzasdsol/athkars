@@ -9,5 +9,5 @@ sealed class ExportViewModelEvent {
     data class Download(val downloadUrl: String) : ExportViewModelEvent()
 
     data class ExportImage(val context:Context, val picture: Picture) : ExportViewModelEvent()
-    data class ExportVideo(val context:Context, val picture: Picture) : ExportViewModelEvent()
+    data class ExportVideo(val context:Context, val picture: Picture, val audioUrl : String) : ExportViewModelEvent()
 }

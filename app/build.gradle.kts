@@ -109,6 +109,9 @@ dependencies {
     implementation(libs.media3.ui)
     implementation(libs.media3.exoplayer.dash)
 
+    //Ffmpeg Android
+    implementation(libs.ffmpeg.android)
+
 }
 
 ksp {

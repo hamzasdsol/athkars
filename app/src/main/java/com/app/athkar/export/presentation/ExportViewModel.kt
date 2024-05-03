@@ -8,13 +8,16 @@ import androidx.lifecycle.viewModelScope
 import com.app.athkar.core.util.CryptLib
 import com.app.athkar.export.audio_downloader.AudioDownloaderService
 import com.app.athkar.export.util.createBitmapFromPicture
-import com.app.athkar.export.util.createVideoFromBitmapAndAudio
+import com.app.athkar.export.util.createVideoFromImageAndAudio
+import com.app.athkar.export.util.saveToCache
 import com.app.athkar.export.util.saveToDisk
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -80,9 +83,14 @@ class ExportViewModel @Inject constructor(
 
             is ExportViewModelEvent.ExportVideo -> {
                 viewModelScope.launch {
-                    val bitmap: Bitmap = event.picture.createBitmapFromPicture()
                     try {
-                        val videoPath = createVideoFromBitmapAndAudio(bitmap, state.value.audioUrl)
+                        val bitmap: Bitmap = event.picture.createBitmapFromPicture()
+                        val imagePath = bitmap.saveToCache(event.context)
+                        val downloadedFile = audioDownloaderService.downloadAudio(event.audioUrl)
+                        val audioPath = downloadedFile?.path ?: ""
+                        val videoPath = withContext(Dispatchers.IO) {
+                            createVideoFromImageAndAudio(imagePath, audioPath)
+                        }
                         _state.value = state.value.copy(text = videoPath)
                     } catch (e: Exception) {
                         _state.value = state.value.copy(text = e.message ?: "Failed to save")
