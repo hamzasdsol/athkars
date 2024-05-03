@@ -53,7 +53,8 @@ fun PrayerItem(
         Text(
             text = item.name,
             fontWeight = FontWeight.W400,
-            fontSize = 12.sp
+            fontSize = 12.sp,
+            color = Color.Black
         )
     }
 }

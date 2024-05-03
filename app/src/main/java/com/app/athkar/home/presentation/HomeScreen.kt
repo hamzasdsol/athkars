@@ -2,34 +2,57 @@ package com.app.athkar.home.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.athkar.R
 import com.app.athkar.home.presentation.composables.AllPrayers
 import com.app.athkar.home.presentation.composables.CurrentPrayerDetails
+import com.app.athkar.home.presentation.composables.SelectCityDropDown
 import com.app.athkar.ui.theme.AthkarTheme
+import com.app.athkar.ui.theme.ButtonBackground
+import com.app.athkar.ui.theme.PopupBackground
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
     onEvent: (HomeViewModelEvent) -> Unit = {}
 ) {
+
+    val showDialog = remember { mutableStateOf(true) }
+
+
     Box(
         modifier =
         Modifier
@@ -73,7 +96,8 @@ fun HomeScreen(
 
             Text(
                 text = "Athkar",
-                fontWeight = FontWeight.W700
+                fontWeight = FontWeight.W700,
+                color = Color.Black
             )
 
             Image(
@@ -81,6 +105,95 @@ fun HomeScreen(
                 painter = painterResource(id = R.drawable.clouds),
                 contentDescription = "clouds"
             )
+        }
+
+        if (showDialog.value) {
+            BasicAlertDialog(
+                modifier = Modifier.fillMaxWidth(),
+                onDismissRequest = { showDialog.value = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(8.dp)
+                        )
+                        .background(ButtonBackground),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp),
+                        text = "Select your location",
+                        color = Color.Black,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.W700,
+                        fontSize = 20.sp
+                    )
+                    Column(
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp)
+                            )
+                            .background(PopupBackground)
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        Text(
+                            text = "Select your location from the list or give us location access",
+                            textAlign = TextAlign.Center,
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+
+                        SelectCityDropDown()
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .width(150.dp)
+                                .border(1.dp, Color.White, RoundedCornerShape(8.dp))
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Done",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.W800
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .border(1.dp, Color.White)
+                                .background(ButtonBackground)
+                                .padding(16.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_location),
+                                colorFilter = ColorFilter.tint(color = PopupBackground),
+                                contentDescription = "Location"
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Auto",
+                                color = PopupBackground,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.W800
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
