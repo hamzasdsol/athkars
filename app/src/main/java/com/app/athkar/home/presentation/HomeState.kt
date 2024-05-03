@@ -3,7 +3,7 @@ package com.app.athkar.home.presentation
 import com.app.athkar.R
 
 data class HomeState(
-    val isFirstTime: Boolean = false,
+    val isFirstTime: Boolean = true,
     val location: String =  ""
 )
 

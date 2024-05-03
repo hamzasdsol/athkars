@@ -50,7 +50,7 @@ fun HomeScreen(
     onEvent: (HomeViewModelEvent) -> Unit = {}
 ) {
 
-    val showDialog = remember { mutableStateOf(true) }
+    val showDialog = remember { mutableStateOf(state.isFirstTime) }
 
 
     Box(
