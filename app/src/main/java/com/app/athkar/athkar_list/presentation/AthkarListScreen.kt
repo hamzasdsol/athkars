@@ -1,16 +1,14 @@
 package com.app.athkar.athkar_list.presentation
 
 import androidx.compose.runtime.Composable
-import com.app.athkar.navigation.Destinations
+import com.app.athkar.core.navigation.ScreenRoute
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@Destination(Destinations.ATHKAR_LIST_ROUTE)
+@Destination(ScreenRoute.ATHKAR_LIST)
 @Composable
 fun AthkarListScreen(
     state: AthkarListState,
     onEvent: (AthkarsViewModelEvent) -> Unit = {},
-    navHostController: DestinationsNavigator? = null
 ) {
 
 }

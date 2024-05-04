@@ -1,6 +1,7 @@
 package com.app.athkar.export.presentation
 
 import android.graphics.Picture
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,22 +48,23 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import androidx.navigation.NavController
 import com.app.athkar.R
+import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.core.util.Constants
-import com.app.athkar.navigation.Destinations
 import com.app.athkar.ui.theme.ExportText
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
-@Destination(Destinations.EXPORT_ROUTE)
+@Destination(ScreenRoute.EXPORT)
 @Composable
 fun ExportScreen(
     state: ExportState,
     onEvent: (ExportViewModelEvent) -> Unit = {},
     uiEvent: SharedFlow<ExportScreenUiEvent> = MutableSharedFlow(),
-    navHostController: DestinationsNavigator? = null
+    navController: NavController? = null
 ) {
     val context = LocalContext.current
     var playerIcon by remember { mutableStateOf(Icons.Default.PlayArrow) }
@@ -101,6 +103,10 @@ fun ExportScreen(
 
                 is ExportScreenUiEvent.Play -> {
                     exoPlayer.play()
+                }
+
+                is ExportScreenUiEvent.ShowMessage -> {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

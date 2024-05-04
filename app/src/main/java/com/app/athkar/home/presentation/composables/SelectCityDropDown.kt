@@ -1,6 +1,5 @@
 package com.app.athkar.home.presentation.composables
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -12,14 +11,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,9 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.app.athkar.ui.theme.AthkarTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectCityDropDown() {
+fun SelectCityDropDown(
+    cities: List<String>,
+    onCitySelected: (String) -> Unit = {}
+) {
 
 
     var mExpanded by remember { mutableStateOf(false) }
@@ -47,35 +44,32 @@ fun SelectCityDropDown() {
         MutableInteractionSource()
     }
 
-    // Create a list of cities
-    val mCities = listOf("Delhi", "Mumbai", "Chennai", "Kolkata", "Hyderabad", "Bengaluru", "Pune")
-
     // Create a string value to store the selected city
     var mSelectedText by remember { mutableStateOf("") }
 
     var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
 
     // Up Icon when expanded and down icon when collapsed
-    val icon = if (mExpanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
+    val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
+    else Icons.Filled.KeyboardArrowDown
 
 
     Column(Modifier.padding(20.dp)) {
 
         // Create an Outlined Text Field
         // with icon and not expanded
-        OutlinedTextField(
-            colors = TextFieldDefaults.outlinedTextFieldColors(focusedBorderColor = Color.White, unfocusedBorderColor = Color.White),
+        OutlinedTextField(colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.White, unfocusedBorderColor = Color.White
+        ),
             value = mSelectedText,
-            onValueChange = { mSelectedText = it },
+            onValueChange = {
+                mSelectedText = it
+            },
             readOnly = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    interactionSource = interactionSource,
-                    indication = null
+                    interactionSource = interactionSource, indication = null
                 ) {
                     mExpanded = !mExpanded
                 }
@@ -86,26 +80,22 @@ fun SelectCityDropDown() {
                 },
             label = { Text("City", color = Color.White) },
             trailingIcon = {
-                Icon(icon, "contentDescription",
-                    Modifier.clickable { mExpanded = !mExpanded })
-            }
-        )
+                Icon(icon, "contentDescription", Modifier.clickable { mExpanded = !mExpanded })
+            })
 
         // Create a drop-down menu with list of cities,
         // when clicked, set the Text Field text as the city selected
         DropdownMenu(
             expanded = mExpanded,
             onDismissRequest = { mExpanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+            modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
         ) {
-            mCities.forEach { label ->
-                DropdownMenuItem(
-                    text = { Text(text = label) },
-                    onClick = {
-                        mSelectedText = label
-                        mExpanded = false
-                    })
+            cities.forEach { label ->
+                DropdownMenuItem(text = { Text(text = label) }, onClick = {
+                    mSelectedText = label
+                    mExpanded = false
+                    onCitySelected.invoke(label)
+                })
             }
         }
     }
@@ -115,6 +105,10 @@ fun SelectCityDropDown() {
 @Composable
 private fun SelectCityDropDownPreview() {
     AthkarTheme {
-        SelectCityDropDown()
+        SelectCityDropDown(
+            listOf(
+                "Delhi", "Mumbai", "Chennai", "Kolkata", "Hyderabad", "Bengaluru", "Pune"
+            )
+        )
     }
 }

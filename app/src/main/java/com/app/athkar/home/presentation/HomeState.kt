@@ -4,7 +4,8 @@ import com.app.athkar.R
 
 data class HomeState(
     val isFirstTime: Boolean = true,
-    val location: String =  ""
+    val location: String = "",
+    val cities: List<String> = emptyList(),
 )
 
 data class PrayerItem(

@@ -1,8 +1,10 @@
 package com.app.athkar.home.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +16,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -35,28 +37,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.athkar.R
-import com.app.athkar.core.navigation.ScreenSoute
+import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.home.presentation.composables.AllPrayers
 import com.app.athkar.home.presentation.composables.CurrentPrayerDetails
 import com.app.athkar.home.presentation.composables.SelectCityDropDown
-import com.app.athkar.navigation.Destinations
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.ButtonBackground
 import com.app.athkar.ui.theme.PopupBackground
 import com.ramcosta.composedestinations.annotation.Destination
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 
-@Destination(Destinations.HOME_ROUTE)
+@Destination(ScreenRoute.HOME)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
     onEvent: (HomeViewModelEvent) -> Unit = {},
+    uiEvent: SharedFlow<HomeUIEvent> = MutableSharedFlow(),
     navigateTo: (String) -> Unit = {}
 ) {
-
     val showDialog = remember { mutableStateOf(state.isFirstTime) }
+    val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        uiEvent.collect { event ->
+            when (event) {
+                is HomeUIEvent.ShowMessage -> {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
 
     Box(
         modifier =
@@ -95,7 +112,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            AllPrayers(list = list, navigate = { navigateTo(ScreenSoute.EDIT_PRAYER) })
+            AllPrayers(list = list, navigate = { navigateTo(ScreenRoute.EDIT_PRAYER) })
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -152,7 +169,9 @@ fun HomeScreen(
                             fontSize = 16.sp
                         )
 
-                        SelectCityDropDown()
+                        SelectCityDropDown(cities = state.cities) {
+                            onEvent(HomeViewModelEvent.UpdateLocation(it))
+                        }
 
                         Box(
                             contentAlignment = Alignment.Center,
@@ -160,6 +179,17 @@ fun HomeScreen(
                                 .width(150.dp)
                                 .border(1.dp, Color.White, RoundedCornerShape(8.dp))
                                 .padding(16.dp)
+                                .clickable {
+                                    if (state.location.isNotBlank()) {
+                                        showDialog.value = false
+                                        onEvent(HomeViewModelEvent.SelectAutoLocation)
+                                    } else
+                                        Toast.makeText(
+                                            context,
+                                            "Please select a location",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                }
                         ) {
                             Text(
                                 text = "Done",
