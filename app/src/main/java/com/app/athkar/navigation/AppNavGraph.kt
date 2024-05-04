@@ -27,7 +27,7 @@ fun NavGraphBuilder.appNavGraph(navController: NavController, startDestination: 
             HomeScreen(
                 state = homeViewModel.state.value,
                 onEvent = homeViewModel::onEvent,
-                navHostController = destinationsNavigator(navController)
+//                navHostController = destinationsNavigator(navController)
             )
         }
 
@@ -45,7 +45,7 @@ fun NavGraphBuilder.appNavGraph(navController: NavController, startDestination: 
             EditPrayerScreen(
                 state = editPrayerViewModel.state.value,
                 onEvent = editPrayerViewModel::onEvent,
-                navHostController = destinationsNavigator(navController)
+//                navHostController = destinationsNavigator(navController)
             )
         }
 

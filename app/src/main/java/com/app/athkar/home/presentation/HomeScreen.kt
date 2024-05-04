@@ -39,11 +39,14 @@ import com.app.athkar.core.navigation.ScreenSoute
 import com.app.athkar.home.presentation.composables.AllPrayers
 import com.app.athkar.home.presentation.composables.CurrentPrayerDetails
 import com.app.athkar.home.presentation.composables.SelectCityDropDown
+import com.app.athkar.navigation.Destinations
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.ButtonBackground
 import com.app.athkar.ui.theme.PopupBackground
+import com.ramcosta.composedestinations.annotation.Destination
 
 
+@Destination(Destinations.HOME_ROUTE)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(

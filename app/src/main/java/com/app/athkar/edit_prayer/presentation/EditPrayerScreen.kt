@@ -26,10 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.athkar.R
 import com.app.athkar.core.ui.AppToolbar
+import com.app.athkar.navigation.Destinations
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.ButtonBackground
 import com.app.athkar.ui.theme.PopupBackground
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination(Destinations.EDIT_PRAYER_ROUTE)
 @Composable
 fun EditPrayerScreen(
     state: EditPrayerState,
