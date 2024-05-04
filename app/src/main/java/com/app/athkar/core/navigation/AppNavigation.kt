@@ -13,13 +13,23 @@ import com.app.athkar.home.presentation.HomeState
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") {
-            HomeScreen(state = HomeState())
+    NavHost(navController = navController, startDestination = ScreenSoute.HOME) {
+        composable(ScreenSoute.HOME) {
+            HomeScreen(state = HomeState(), navigateTo = {
+                navController.navigate(it)
+            })
         }
 
-        composable("edit_prayer") {
-            EditPrayerScreen(state = EditPrayerState())
+        composable(ScreenSoute.EDIT_PRAYER) {
+            EditPrayerScreen(state = EditPrayerState()) {
+                navController.navigateUp()
+            }
         }
     }
+}
+
+
+object ScreenSoute {
+    const val HOME = "home"
+    const val EDIT_PRAYER = "edit_prayer"
 }

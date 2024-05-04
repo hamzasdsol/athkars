@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.athkar.R
+import com.app.athkar.core.navigation.ScreenSoute
 import com.app.athkar.home.presentation.composables.AllPrayers
 import com.app.athkar.home.presentation.composables.CurrentPrayerDetails
 import com.app.athkar.home.presentation.composables.SelectCityDropDown
@@ -47,7 +48,8 @@ import com.app.athkar.ui.theme.PopupBackground
 @Composable
 fun HomeScreen(
     state: HomeState,
-    onEvent: (HomeViewModelEvent) -> Unit = {}
+    onEvent: (HomeViewModelEvent) -> Unit = {},
+    navigateTo: (String) -> Unit = {}
 ) {
 
     val showDialog = remember { mutableStateOf(state.isFirstTime) }
@@ -90,7 +92,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            AllPrayers(list = list)
+            AllPrayers(list = list, navigate = { navigateTo(ScreenSoute.EDIT_PRAYER) })
 
             Spacer(modifier = Modifier.height(32.dp))
 

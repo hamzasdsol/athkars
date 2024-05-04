@@ -3,6 +3,7 @@ package com.app.athkar.home.presentation.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,8 @@ import com.app.athkar.ui.theme.CardBackground
 
 @Composable
 fun AllPrayers(
-    list: List<PrayerItem>
+    list: List<PrayerItem>,
+    navigate: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -53,7 +55,7 @@ fun AllPrayers(
             }
 
             Image(
-                modifier = Modifier.align(Alignment.TopEnd),
+                modifier = Modifier.align(Alignment.TopEnd).clickable { navigate() },
                 painter = painterResource(id = R.drawable.ic_edit), contentDescription = "Edit"
             )
         }
