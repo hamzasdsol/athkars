@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.app.athkar.edit_prayer.presentation.EditPrayerScreen
 import com.app.athkar.edit_prayer.presentation.EditPrayerState
+import com.app.athkar.edit_prayer.presentation.EditPrayerViewModel
 import com.app.athkar.export.presentation.ExportScreen
 import com.app.athkar.export.presentation.ExportViewModel
 import com.app.athkar.home.presentation.HomeScreen
@@ -28,7 +29,11 @@ fun AppNavigation() {
         }
 
         composable(ScreenRoute.EDIT_PRAYER) {
-            EditPrayerScreen(state = EditPrayerState()) {
+            val editPrayerViewModel: EditPrayerViewModel = hiltViewModel()
+            EditPrayerScreen(
+                state = editPrayerViewModel.state.value,
+                onEvent = editPrayerViewModel::onEvent
+            ) {
                 navController.navigateUp()
             }
         }
