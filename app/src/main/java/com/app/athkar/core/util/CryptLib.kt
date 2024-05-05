@@ -62,8 +62,8 @@ object CryptLib {
     fun decryptData(cipherText: String): String {
         val bytes =
             decrypt(cipherText, keySHA256(), generateRandomIV16())
-        val out = String(bytes)
-        return out.substring(16, out.length)
+        val decryptedString = String(bytes)
+        return decryptedString.substring(16, decryptedString.length)
     }
 
     /**
