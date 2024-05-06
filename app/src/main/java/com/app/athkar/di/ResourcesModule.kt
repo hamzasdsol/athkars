@@ -7,7 +7,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ResourceProvider @Inject constructor(@ApplicationContext val context: Context){
+class ResourceProvider @Inject constructor(@ApplicationContext val context: Context) {
+
+    fun getApplicationContext(): Context {
+        return context
+    }
 
     fun getString(
         @StringRes stringResId: Int,

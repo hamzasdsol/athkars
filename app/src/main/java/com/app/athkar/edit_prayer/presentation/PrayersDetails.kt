@@ -102,6 +102,10 @@ enum class PrayerName {
     FAJR, DUHUR, ASR, MAGHRIB, ISHA
 }
 
+fun generateRequestCodeForPrayer(prayerName: PrayerName): Int {
+    return prayerName.ordinal + 100
+}
+
 
 @Preview
 @Composable
