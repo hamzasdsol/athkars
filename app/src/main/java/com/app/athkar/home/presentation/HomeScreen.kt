@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -82,8 +83,10 @@ fun HomeScreen(
             .background(Color.White)
     ) {
         Image(
+            modifier = Modifier.fillMaxWidth(),
             painter = painterResource(id = R.drawable.home_background),
-            contentDescription = "background"
+            contentDescription = "background",
+            contentScale = ContentScale.FillWidth,
         )
         Column(
             modifier = Modifier
@@ -99,7 +102,7 @@ fun HomeScreen(
                 fontSize = 12.sp
             )
             Text(
-                text = "Green Campus, Central University, Ganderbal",
+                text = state.location,
                 color = Color.White,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold,
@@ -108,7 +111,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            CurrentPrayerDetails()
+            CurrentPrayerDetails(state.currentPrayer)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -123,7 +126,11 @@ fun HomeScreen(
             )
 
             Image(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navigateTo(ScreenRoute.ATHKAR_LIST)
+                    },
                 painter = painterResource(id = R.drawable.clouds),
                 contentDescription = "clouds"
             )
@@ -184,11 +191,13 @@ fun HomeScreen(
                                         showDialog.value = false
                                         onEvent(HomeViewModelEvent.SelectAutoLocation)
                                     } else
-                                        Toast.makeText(
-                                            context,
-                                            "Please select a location",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "Please select a location",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
                                 }
                         ) {
                             Text(

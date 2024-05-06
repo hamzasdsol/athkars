@@ -5,6 +5,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.app.athkar.athkar_list.presentation.AthkarListScreen
+import com.app.athkar.athkar_list.presentation.AthkarsViewModel
 import com.app.athkar.edit_prayer.presentation.EditPrayerScreen
 import com.app.athkar.edit_prayer.presentation.EditPrayerState
 import com.app.athkar.edit_prayer.presentation.EditPrayerViewModel
@@ -45,6 +47,18 @@ fun AppNavigation() {
                 onEvent = exportViewModel::onEvent,
                 uiEvent = exportViewModel.uiEvent,
                 navController = navController
+            )
+        }
+
+        composable(ScreenRoute.ATHKAR_LIST) {
+            val athkarsViewModel: AthkarsViewModel = hiltViewModel()
+            AthkarListScreen(
+                state = athkarsViewModel.state.value,
+                onEvent = athkarsViewModel::onEvent,
+                uiEvent = athkarsViewModel.uiEvent,
+                navigateTo = {
+                    navController.navigate(it)
+                }
             )
         }
     }

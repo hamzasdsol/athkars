@@ -12,9 +12,9 @@ interface ApiService {
     @GET("/android/cities.json")
     suspend fun getCities(): Response<EncryptedResponse>
 
-    @GET("/android/{city}.json")
+    @GET("/android/prayers/{city}.json")
     suspend fun getPrayerTimes(@Path("city") city: String): Response<EncryptedResponse>
 
-    @GET("/android/athkar.json")
+    @GET("/android/athkars.json")
     suspend fun getAthkar(): Response<EncryptedResponse>
 }

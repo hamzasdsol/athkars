@@ -3,12 +3,9 @@ package com.app.athkar.home.presentation.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,15 +23,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.athkar.R
+import com.app.athkar.data.model.CurrentPrayerDetails
+import com.app.athkar.home.presentation.HomeState
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.CardBackground
 
 @Composable
 fun CurrentPrayerDetails(
-    name: String = "Duhar",
-    time: String = "01:15 PM",
-    nextPrayer: String = "Asr",
-    nextPrayerTime: String = "05: 32PM"
+    currentPrayerDetails: CurrentPrayerDetails
 ) {
 
     Card(
@@ -53,14 +49,14 @@ fun CurrentPrayerDetails(
                 .padding(start = 8.dp, top = 16.dp)
                 ) {
                 Text(
-                    text = name,
+                    text = currentPrayerDetails.name,
                     color = Color.White,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.W700,
                     fontSize = 14.sp
                 )
                 Text(
-                    text = time,
+                    text = currentPrayerDetails.time,
                     color = Color.White,
                     fontWeight = FontWeight.W800,
                     fontSize = 32.sp
@@ -70,13 +66,13 @@ fun CurrentPrayerDetails(
 
                 Column {
                     Text(
-                        text = "Next prayer: $nextPrayer",
+                        text = "Next prayer: ${currentPrayerDetails.nextPrayer}",
                         color = Color.White,
                         fontWeight = FontWeight.W500,
                         fontSize = 12.sp
                     )
                     Text(
-                        text = nextPrayerTime,
+                        text = currentPrayerDetails.nextPrayerTime,
                         color = Color.White,
                         fontWeight = FontWeight.W800,
                         fontSize = 16.sp
@@ -100,6 +96,6 @@ fun CurrentPrayerDetails(
 @Composable
 private fun CurrentPrayerDetailsPreview() {
     AthkarTheme {
-        CurrentPrayerDetails()
+        CurrentPrayerDetails(HomeState().currentPrayer)
     }
 }
