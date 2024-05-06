@@ -35,7 +35,8 @@ fun AppNavigation() {
             val editPrayerViewModel: EditPrayerViewModel = hiltViewModel()
             EditPrayerScreen(
                 state = editPrayerViewModel.state.value,
-                onEvent = editPrayerViewModel::onEvent
+                onEvent = editPrayerViewModel::onEvent,
+                uiEvent = editPrayerViewModel.uiEvent,
             ) {
                 navController.navigateUp()
             }
