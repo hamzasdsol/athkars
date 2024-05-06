@@ -8,12 +8,13 @@ import com.app.athkar.data.model.network.GetPrayerTimesResponse
 import com.app.athkar.data.remote.AppDataSource
 import com.app.athkar.domain.Result
 import com.app.athkar.domain.repository.AppRepository
+import org.json.JSONObject
 import javax.inject.Inject
 
 class AppRepositoryImpl @Inject constructor(
     private val dataSource: AppDataSource
 ) : AppRepository {
-    override suspend fun getAthkar(): Result<GetAthkarResponse> {
+    override suspend fun getAthkars(): Result<GetAthkarResponse> {
         when (val response = dataSource.getAthkar()) {
             is Result.Success -> {
 
@@ -37,8 +38,17 @@ class AppRepositoryImpl @Inject constructor(
             is Result.Success -> {
                 try {
                     val decryptedResponse = decryptData(response.data.data)
-                    val getPrayerTimesResponse: GetPrayerTimesResponse =
-                        decryptedResponse.toResponseModel()
+                    val decryptedResponseObject = JSONObject(decryptedResponse)
+                    val map = mutableMapOf<String, List<String>>()
+                    decryptedResponseObject.keys().forEach { key ->
+                        val value = decryptedResponseObject.getJSONArray(key)
+                        val list = mutableListOf<String>()
+                        for (i in 0 until value.length()) {
+                            list.add(value.getString(i))
+                        }
+                        map[key] = list
+                    }
+                    val getPrayerTimesResponse = GetPrayerTimesResponse(map.toMap())
                     return Result.Success(getPrayerTimesResponse)
                 } catch (e: Exception) {
                     return Result.Failure(e)

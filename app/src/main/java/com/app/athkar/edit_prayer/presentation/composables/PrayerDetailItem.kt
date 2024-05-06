@@ -29,7 +29,7 @@ fun PrayerDetailItem(
         Text(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center,
-            text = prayer.prayerTime,
+            text = prayer.name,
             color = Color.White,
             fontWeight = FontWeight.W800,
             fontSize = 14.sp
@@ -37,7 +37,7 @@ fun PrayerDetailItem(
         Text(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center,
-            text = prayer.name,
+            text = prayer.prayerTime,
             color = Color.White,
             fontWeight = FontWeight.W800,
             fontSize = 14.sp

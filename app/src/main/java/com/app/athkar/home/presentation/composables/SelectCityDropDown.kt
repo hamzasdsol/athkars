@@ -28,12 +28,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.app.athkar.data.model.network.City
 import com.app.athkar.ui.theme.AthkarTheme
 
 @Composable
 fun SelectCityDropDown(
-    cities: List<String>,
-    onCitySelected: (String) -> Unit = {}
+    cities: List<City>,
+    onCitySelected: (City) -> Unit = {}
 ) {
 
 
@@ -90,11 +91,11 @@ fun SelectCityDropDown(
             onDismissRequest = { mExpanded = false },
             modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
         ) {
-            cities.forEach { label ->
-                DropdownMenuItem(text = { Text(text = label) }, onClick = {
-                    mSelectedText = label
+            cities.forEach { city ->
+                DropdownMenuItem(text = { Text(text = city.name_en) }, onClick = {
+                    mSelectedText = city.name_en
                     mExpanded = false
-                    onCitySelected.invoke(label)
+                    onCitySelected.invoke(city)
                 })
             }
         }
@@ -105,10 +106,10 @@ fun SelectCityDropDown(
 @Composable
 private fun SelectCityDropDownPreview() {
     AthkarTheme {
-        SelectCityDropDown(
-            listOf(
-                "Delhi", "Mumbai", "Chennai", "Kolkata", "Hyderabad", "Bengaluru", "Pune"
-            )
-        )
+        /* SelectCityDropDown(
+             listOf(
+                 "Delhi", "Mumbai", "Chennai", "Kolkata", "Hyderabad", "Bengaluru", "Pune"
+             )
+         )*/
     }
 }
