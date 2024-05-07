@@ -60,7 +60,8 @@ fun AthkarListScreen(
     state: AthkarListState,
     onEvent: (AthkarsViewModelEvent) -> Unit = {},
     uiEvent: SharedFlow<AthkarListUIEvent> = MutableSharedFlow(),
-    navigateTo: (String) -> Unit = {}
+    navigateTo: (String) -> Unit = {},
+    navigateUp: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = {
@@ -108,7 +109,7 @@ fun AthkarListScreen(
                 leftIcon = {
                     Icon(
                         modifier = Modifier.clickable {
-                            // navigate up
+                            navigateUp()
                         },
                         painter = painterResource(id = R.drawable.ic_back),
                         tint = Color.White,

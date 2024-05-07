@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.app.athkar.athkar_list.presentation.AthkarListScreen
 import com.app.athkar.athkar_list.presentation.AthkarsViewModel
@@ -58,6 +59,9 @@ fun AppNavigation() {
                 uiEvent = athkarsViewModel.uiEvent,
                 navigateTo = {
                     navController.navigate(it)
+                },
+                navigateUp = {
+                    navController.navigateUp()
                 }
             )
         }
