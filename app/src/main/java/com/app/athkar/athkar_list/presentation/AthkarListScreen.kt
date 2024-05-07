@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.athkar.R
+import com.app.athkar.athkar_list.presentation.composables.PagerControls
 import com.app.athkar.athkar_list.presentation.composables.PagerItemContent
 import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.core.ui.AppToolbar
@@ -40,6 +42,7 @@ import com.app.athkar.ui.theme.PagerActiveIndicator
 import com.app.athkar.ui.theme.PagerInActiveIndicator
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.ramcosta.composedestinations.annotation.Destination
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -146,17 +149,7 @@ fun AthkarListScreen(
                         inactiveColor = PagerInActiveIndicator,
                         indicatorHeight = 12.dp,
                         indicatorWidth = 12.dp,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .clickable {
-                                val currentPage = pagerState.currentPage
-                                val totalPages = state.athkars.size
-                                val nextPage =
-                                    if (currentPage < totalPages - 1) currentPage + 1 else 0
-                                coroutineScope.launch { pagerState.animateScrollToPage(nextPage) }
-                            }
-
-                    )
+                        modifier = Modifier.align(Alignment.Center))
 
                     LaunchedEffect(pagerState) {
                         snapshotFlow { pagerState.currentPage }
@@ -165,9 +158,43 @@ fun AthkarListScreen(
                             }
                     }
                 }
+
+                PagerControls(
+                    onNextTap = {
+                        handleSlide(pagerState, state.athkars.size, TapDirection.FORWARD, coroutineScope)
+                    },
+                    onBackTap = {
+                        handleSlide(pagerState, state.athkars.size, TapDirection.BACK, coroutineScope)
+                    },
+                    onPlayTap = { }
+                )
             }
         }
     }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun handleSlide(
+    pagerState: PagerState,
+    totalPages: Int,
+    tapDirection: TapDirection,
+    coroutineScope: CoroutineScope
+) {
+    val currentPage = pagerState.currentPage
+
+    var nextPage = 0
+
+    nextPage = when(tapDirection) {
+        TapDirection.BACK -> if (currentPage != 0) currentPage - 1 else totalPages - 1
+        TapDirection.FORWARD -> if (currentPage < totalPages - 1) currentPage + 1 else 0
+    }
+
+    coroutineScope.launch { pagerState.animateScrollToPage(nextPage) }
+}
+
+enum class TapDirection {
+    BACK, FORWARD
 }
 
 
