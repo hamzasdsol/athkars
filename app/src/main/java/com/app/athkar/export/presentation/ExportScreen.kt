@@ -3,6 +3,8 @@ package com.app.athkar.export.presentation
 import android.graphics.Picture
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -50,21 +54,23 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import androidx.navigation.NavController
 import com.app.athkar.R
+import com.app.athkar.athkar_list.presentation.composables.ExportPopupMenu
 import com.app.athkar.core.navigation.ScreenRoute
+import com.app.athkar.core.ui.AppToolbar
 import com.app.athkar.core.util.Constants
+import com.app.athkar.export.enums.EXPORTTYPE
 import com.app.athkar.ui.theme.ExportText
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
-@Destination(ScreenRoute.EXPORT)
 @Composable
 fun ExportScreen(
     state: ExportState,
     onEvent: (ExportViewModelEvent) -> Unit = {},
     uiEvent: SharedFlow<ExportScreenUiEvent> = MutableSharedFlow(),
-    navController: NavController? = null
+    navigateUp: () -> Unit = {},
 ) {
     val context = LocalContext.current
     var playerIcon by remember { mutableStateOf(Icons.Default.PlayArrow) }
@@ -93,7 +99,6 @@ fun ExportScreen(
         MediaItem.fromUri(state.audioUrl)
     }
 
-
     LaunchedEffect(Unit) {
         uiEvent.collect {
             when (it) {
@@ -119,123 +124,164 @@ fun ExportScreen(
     }
 
     DisposableEffect(Unit) {
-
-
         onDispose {
             exoPlayer.release()
         }
     }
 
     Scaffold { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(Color.White)
         ) {
-            Button(onClick = {
-                onEvent(ExportViewModelEvent.Download("https://rommanapps.com/android/theker_43.mp3"))
-            }
-            ) {
-                Text("Download Audio")
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = state.text)
-            if (state.audioUrl.isNotEmpty())
-                AndroidView(
-                    factory = { ctx ->
-                        PlayerView(ctx).apply {
-                            player = exoPlayer
-                            useController = false
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .height(0.dp)
-                )
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Image(
+                modifier = Modifier.fillMaxWidth(),
+                painter = painterResource(id = R.drawable.bg_athkars),
+                contentDescription = "background",
+                contentScale = ContentScale.FillWidth,
+            )
 
             Column(
-                modifier = Modifier
-                    .width(exportedImageWidth)
-                    .height(exportedImageHeight)
-                    .drawWithCache {
-                        val width = this.size.width.toInt()
-                        val height = this.size.height.toInt()
-                        onDrawWithContent {
-                            val pictureCanvas =
-                                androidx.compose.ui.graphics.Canvas(
-                                    picture.beginRecording(
-                                        width,
-                                        height
-                                    )
-                                )
-                            draw(this, this.layoutDirection, pictureCanvas, this.size) {
-                                this@onDrawWithContent.drawContent()
-                            }
-                            picture.endRecording()
-
-                            drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(picture) }
-                        }
-                    }
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Box(
-                    Modifier
-                        .width(exportedImageWidth)
-                        .height(exportedImageHeight),
-                    contentAlignment = Alignment.Center
+                AppToolbar(title = "Export", leftIcon = {
+                    Icon(
+                        modifier = Modifier.clickable {
+                            navigateUp()
+                        },
+                        painter = painterResource(id = R.drawable.ic_back),
+                        tint = Color.White,
+                        contentDescription = "back icon"
+                    )
+                }, rightIcon = {
+                    Box {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                //TODO: Implement export
+                            },
+                            painter = painterResource(id = R.drawable.ic_export),
+                            tint = Color.White,
+                            contentDescription = "export icon"
+                        )
+                    }
+                })
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_export_template),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillBounds,
+                    Button(onClick = {
+                        onEvent(ExportViewModelEvent.Download("https://rommanapps.com/android/theker_43.mp3"))
+                    }
+                    ) {
+                        Text("Download Audio")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = state.text)
+                    if (state.audioUrl.isNotEmpty())
+                        AndroidView(
+                            factory = { ctx ->
+                                PlayerView(ctx).apply {
+                                    player = exoPlayer
+                                    useController = false
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .height(0.dp)
+                        )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Column(
                         modifier = Modifier
                             .width(exportedImageWidth)
                             .height(exportedImageHeight)
-                    )
+                            .drawWithCache {
+                                val width = this.size.width.toInt()
+                                val height = this.size.height.toInt()
+                                onDrawWithContent {
+                                    val pictureCanvas =
+                                        Canvas(
+                                            picture.beginRecording(
+                                                width,
+                                                height
+                                            )
+                                        )
+                                    draw(this, this.layoutDirection, pictureCanvas, this.size) {
+                                        this@onDrawWithContent.drawContent()
+                                    }
+                                    picture.endRecording()
 
-                    Text(
-                        text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                        modifier = Modifier
-                            .padding(horizontal = 32.dp)
-                            .align(Alignment.Center),
-                        color = ExportText,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
+                                    drawIntoCanvas { canvas ->
+                                        canvas.nativeCanvas.drawPicture(
+                                            picture
+                                        )
+                                    }
+                                }
+                            }
+                    ) {
+                        Box(
+                            Modifier
+                                .width(exportedImageWidth)
+                                .height(exportedImageHeight),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.img_export_template),
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
+                                modifier = Modifier
+                                    .width(exportedImageWidth)
+                                    .height(exportedImageHeight)
+                            )
+
+                            Text(
+                                text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                                modifier = Modifier
+                                    .padding(horizontal = 32.dp)
+                                    .align(Alignment.Center),
+                                color = ExportText,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    IconButton(onClick = {
+                        if (state.isPlaying) {
+                            onEvent(ExportViewModelEvent.Pause)
+                        } else {
+                            onEvent(ExportViewModelEvent.Play)
+                        }
+                    }) {
+                        Icon(
+                            imageVector = playerIcon,
+                            contentDescription = "Play/Pause"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        onEvent(ExportViewModelEvent.ExportImage(context, picture))
+                    }) {
+                        Text("Export Image")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        onEvent(ExportViewModelEvent.ExportVideo(context, picture, state.audioUrl))
+                    }) {
+                        Text("Export Video")
+                    }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            IconButton(onClick = {
-                if (state.isPlaying) {
-                    onEvent(ExportViewModelEvent.Pause)
-                } else {
-                    onEvent(ExportViewModelEvent.Play)
-                }
-            }) {
-                Icon(
-                    imageVector = playerIcon,
-                    contentDescription = "Play/Pause"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                onEvent(ExportViewModelEvent.ExportImage(context, picture))
-            }) {
-                Text("Export Image")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                onEvent(ExportViewModelEvent.ExportVideo(context, picture, state.audioUrl))
-            }) {
-                Text("Export Video")
             }
         }
     }

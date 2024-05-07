@@ -24,6 +24,7 @@ import com.app.athkar.ui.theme.PagerControlsBackground
 
 @Composable
 fun PagerControls(
+    isPlaying: Boolean = false,
     onPlayTap: () -> Unit = {},
     onNextTap: () -> Unit = {},
     onBackTap: () -> Unit = {}
@@ -41,18 +42,16 @@ fun PagerControls(
         Text(
             modifier = Modifier.clickable {
                 onBackTap()
-            },
-            text = "Back",
-            color = ControlsColor,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.W400
+            }, text = "Back", color = ControlsColor, fontSize = 16.sp, fontWeight = FontWeight.W400
         )
 
         Icon(
             modifier = Modifier.clickable {
                 onPlayTap()
             },
-            painter = painterResource(id = R.drawable.ic_play),
+            painter = if (isPlaying) painterResource(id = R.drawable.ic_pause) else painterResource(
+                id = R.drawable.ic_play
+            ),
             tint = ControlsColor,
             contentDescription = "play icon"
         )
@@ -60,11 +59,7 @@ fun PagerControls(
         Text(
             modifier = Modifier.clickable {
                 onNextTap()
-            },
-            text = "Next",
-            color = ControlsColor,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.W400
+            }, text = "Next", color = ControlsColor, fontSize = 16.sp, fontWeight = FontWeight.W400
         )
 
     }

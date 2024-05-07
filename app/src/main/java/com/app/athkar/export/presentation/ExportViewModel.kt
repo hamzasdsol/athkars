@@ -42,24 +42,6 @@ class ExportViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<ExportScreenUiEvent>()
     val uiEvent: SharedFlow<ExportScreenUiEvent> = _uiEvent.asSharedFlow()
 
-    init {
-        getCities()
-    }
-
-    private fun getCities() {
-        viewModelScope.launch {
-            when (val citiesResponse = appRepository.getCities()) {
-                is Result.Success -> {
-                    _state.value = state.value.copy(text = citiesResponse.toString())
-                }
-
-                is Result.Failure -> {
-                    handleError(citiesResponse.exception)
-                }
-            }
-        }
-    }
-
     fun onEvent(event: ExportViewModelEvent) {
         when (event) {
             is ExportViewModelEvent.Pause -> {

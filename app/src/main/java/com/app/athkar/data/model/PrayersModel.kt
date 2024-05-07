@@ -45,5 +45,5 @@ fun List<String>.toPrayersModel(date:String): PrayersModel {
     val asr = timeFormat.parse("$date ${this[3]}")
     val maghrib = timeFormat.parse("$date ${this[4]}")
     val isha = timeFormat.parse("$date ${this[5]}")
-    return PrayersModel(fajr, shuruq, duhur, asr, maghrib, isha)
+    return PrayersModel(fajr!!, shuruq!!, duhur!!, asr!!, maghrib!!, isha!!)
 }

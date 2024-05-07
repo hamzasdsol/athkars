@@ -2,14 +2,14 @@ package com.app.athkar.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.app.athkar.athkar_list.presentation.AthkarListScreen
 import com.app.athkar.athkar_list.presentation.AthkarsViewModel
 import com.app.athkar.edit_prayer.presentation.EditPrayerScreen
-import com.app.athkar.edit_prayer.presentation.EditPrayerState
 import com.app.athkar.edit_prayer.presentation.EditPrayerViewModel
 import com.app.athkar.export.presentation.ExportScreen
 import com.app.athkar.export.presentation.ExportViewModel
@@ -42,13 +42,28 @@ fun AppNavigation() {
             }
         }
 
-        composable(ScreenRoute.EXPORT) {
+        composable(
+            ScreenRoute.EXPORT + "/{exportType}",
+            arguments = listOf(
+                navArgument(
+                    "exportType",
+                    builder = { type = NavType.StringType }),
+                /*navArgument(
+                    "text",
+                    builder = { type = NavType.StringType }),*/
+                /*navArgument(
+                    "link",
+                    builder = { type = NavType.StringType })*/
+            )
+        ) {
             val exportViewModel: ExportViewModel = hiltViewModel()
             ExportScreen(
                 state = exportViewModel.state.value,
                 onEvent = exportViewModel::onEvent,
                 uiEvent = exportViewModel.uiEvent,
-                navController = navController
+                navigateUp = {
+                    navController.navigateUp()
+                },
             )
         }
 

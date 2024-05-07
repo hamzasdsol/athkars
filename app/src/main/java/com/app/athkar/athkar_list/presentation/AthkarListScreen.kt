@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +41,7 @@ import com.app.athkar.athkar_list.presentation.composables.PagerControls
 import com.app.athkar.athkar_list.presentation.composables.PagerItemContent
 import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.core.ui.AppToolbar
+import com.app.athkar.export.enums.EXPORTTYPE
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.PagerActiveIndicator
 import com.app.athkar.ui.theme.PagerInActiveIndicator
@@ -51,7 +51,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import kotlin.math.exp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Destination(ScreenRoute.ATHKAR_LIST)
@@ -66,8 +65,7 @@ fun AthkarListScreen(
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = {
         state.athkars.size
-    }
-    )
+    })
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -78,18 +76,19 @@ fun AthkarListScreen(
             when (event) {
                 is AthkarListUIEvent.ShowMessage -> {
                     Toast.makeText(
-                        context,
-                        event.message,
-                        Toast.LENGTH_SHORT
+                        context, event.message, Toast.LENGTH_SHORT
                     ).show()
                 }
             }
         }
     }
 
+    var isPlaying by remember {
+        mutableStateOf(false)
+    }
+
     Box(
-        modifier =
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
@@ -104,38 +103,38 @@ fun AthkarListScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AppToolbar(
-                title = "Athkar",
-                leftIcon = {
+            AppToolbar(title = "Athkar", leftIcon = {
+                Icon(
+                    modifier = Modifier.clickable {
+                        navigateUp()
+                    },
+                    painter = painterResource(id = R.drawable.ic_back),
+                    tint = Color.White,
+                    contentDescription = "back icon"
+                )
+            }, rightIcon = {
+                Box {
                     Icon(
                         modifier = Modifier.clickable {
-                            navigateUp()
+                            expanded = true
                         },
-                        painter = painterResource(id = R.drawable.ic_back),
+                        painter = painterResource(id = R.drawable.ic_export),
                         tint = Color.White,
-                        contentDescription = "back icon"
+                        contentDescription = "export icon"
                     )
-                },
-                rightIcon = {
-                    Box {
-                        Icon(
-                            modifier = Modifier.clickable {
-                                expanded = true
-                            },
-                            painter = painterResource(id = R.drawable.ic_export),
-                            tint = Color.White,
-                            contentDescription = "export icon"
-                        )
 
-                        ExportPopupMenu(
-                            expanded = expanded,
-                            setExpanded = { expanded = it },
-                            onVideoTap = { /* handle video export */ },
-                            onImageTap = { /* handle image export */ }
-                        )
-                    }
+                    ExportPopupMenu(expanded = expanded,
+                        setExpanded = { expanded = it },
+                        onVideoTap = {
+                            val athkar = state.athkars[pagerState.currentPage]
+                            navigateTo(ScreenRoute.EXPORT + "/${EXPORTTYPE.VIDEO.name}")
+                        },
+                        onImageTap = {
+                            val athkar = state.athkars[pagerState.currentPage]
+                            navigateTo(ScreenRoute.EXPORT + "/${EXPORTTYPE.IMAGE.name}")
+                        })
                 }
-            )
+            })
 
             Box(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
                 Image(
@@ -151,7 +150,13 @@ fun AthkarListScreen(
             ) {
                 HorizontalPager(state = pagerState) {
                     Column {
-                        PagerItemContent(text = state.athkars[it].text)
+                        PagerItemContent(
+                            text = state.athkars[it].text,
+                            link = state.athkars[it].link,
+                            isPlaying && pagerState.currentPage == it,
+                            onCompleted = {
+                                isPlaying = false
+                            })
                     }
                 }
 
@@ -167,25 +172,35 @@ fun AthkarListScreen(
                         inactiveColor = PagerInActiveIndicator,
                         indicatorHeight = 12.dp,
                         indicatorWidth = 12.dp,
-                        modifier = Modifier.align(Alignment.Center))
+                        modifier = Modifier.align(Alignment.Center)
+                    )
 
                     LaunchedEffect(pagerState) {
-                        snapshotFlow { pagerState.currentPage }
-                            .collect { currentPage ->
-                                pagerState.animateScrollToPage(currentPage)
-                            }
+                        snapshotFlow { pagerState.currentPage }.collect { currentPage ->
+                            pagerState.animateScrollToPage(currentPage)
+                        }
                     }
                 }
 
                 PagerControls(
+                    isPlaying = isPlaying,
                     onNextTap = {
-                        handleSlide(pagerState, state.athkars.size, TapDirection.FORWARD, coroutineScope)
-                    },
-                    onBackTap = {
-                        handleSlide(pagerState, state.athkars.size, TapDirection.BACK, coroutineScope)
-                    },
-                    onPlayTap = { }
-                )
+                        handleSlide(
+                            pagerState, state.athkars.size, TapDirection.FORWARD, coroutineScope
+                        )
+                        if (isPlaying) {
+                            isPlaying = false
+                        }
+                    }, onBackTap = {
+                        handleSlide(
+                            pagerState, state.athkars.size, TapDirection.BACK, coroutineScope
+                        )
+                        if (isPlaying) {
+                            isPlaying = false
+                        }
+                    }, onPlayTap = {
+                        isPlaying = !isPlaying
+                    })
             }
         }
     }
@@ -201,9 +216,7 @@ private fun handleSlide(
 ) {
     val currentPage = pagerState.currentPage
 
-    var nextPage = 0
-
-    nextPage = when(tapDirection) {
+    val nextPage: Int = when (tapDirection) {
         TapDirection.BACK -> if (currentPage != 0) currentPage - 1 else totalPages - 1
         TapDirection.FORWARD -> if (currentPage < totalPages - 1) currentPage + 1 else 0
     }

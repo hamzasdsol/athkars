@@ -5,7 +5,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.app.athkar.data.model.network.Athkar
 
 data class AthkarListState(
-    val athkars: SnapshotStateList<Athkar> = mutableStateListOf()
+    val athkars: SnapshotStateList<Athkar> = mutableStateListOf(),
 )
 
 /*
