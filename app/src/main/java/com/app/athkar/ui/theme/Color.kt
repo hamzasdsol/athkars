@@ -15,3 +15,8 @@ val PrayerIconBorder = Color(0xFF55ABC1)
 val PopupBackground = Color(0xFF42A8C3)
 val ButtonBackground = Color(0xFFE0F1F5)
 val ExportText = Color(0xFF7B0A0A)
+val PagerActiveIndicator = Color(0xFF42A8C3)
+val PagerInActiveIndicator = Color(0xFFCECECE)
+
+val ControlsColor = Color(0xFF42A8C3)
+val PagerControlsBackground = Color(0xFFF0F0F0)
