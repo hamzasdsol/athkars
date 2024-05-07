@@ -168,7 +168,7 @@ class EditPrayerViewModel @Inject constructor(
                 )
 
                 if (event.value) {
-                    val twoMinutes = 1 * 60 * 1000
+                    val twoMinutes = 2 * 60 * 1000
                     val prayerTime = Date().time + twoMinutes
                     val requestCode = generateRequestCodeForPrayer(event.key)
                     scheduleNotification(prayerTime, event.key.name, requestCode)
