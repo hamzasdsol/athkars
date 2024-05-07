@@ -31,7 +31,6 @@ fun AppToolbar(
             .padding(16.dp),
         contentAlignment = Alignment.CenterStart
     ) {
-        leftIcon()
         Text(
             modifier = Modifier.align(Alignment.Center),
             text = title,
@@ -39,6 +38,15 @@ fun AppToolbar(
             fontSize = 18.sp,
             fontWeight = FontWeight.W800
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            leftIcon()
+            rightIcon()
+        }
     }
 }
 
@@ -46,15 +54,24 @@ fun AppToolbar(
 @Composable
 private fun AppToolbarPreview() {
     AthkarTheme {
-        AppToolbar(
-            title = "App toolbar title",
-            leftIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    tint = Color.White,
-                    contentDescription = "back"
-                )
-            }
-        )
+        Box {
+            AppToolbar(
+                title = "App toolbar title very very long",
+                leftIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_back),
+                        tint = Color.White,
+                        contentDescription = "back"
+                    )
+                },
+                rightIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_export),
+                        tint = Color.White,
+                        contentDescription = "export"
+                    )
+                }
+            )
+        }
     }
 }

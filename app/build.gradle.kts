@@ -112,6 +112,8 @@ dependencies {
     //Ffmpeg Android
     implementation(libs.ffmpeg.android)
 
+    implementation(libs.accompanist.pager.indicators)
+
 }
 
 ksp {
