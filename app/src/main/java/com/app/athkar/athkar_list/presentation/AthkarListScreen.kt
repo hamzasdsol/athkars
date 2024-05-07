@@ -21,7 +21,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.athkar.R
+import com.app.athkar.athkar_list.presentation.composables.ExportPopupMenu
 import com.app.athkar.athkar_list.presentation.composables.PagerControls
 import com.app.athkar.athkar_list.presentation.composables.PagerItemContent
 import com.app.athkar.core.navigation.ScreenRoute
@@ -46,6 +51,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlin.math.exp
 
 @OptIn(ExperimentalFoundationApi::class)
 @Destination(ScreenRoute.ATHKAR_LIST)
@@ -61,6 +67,8 @@ fun AthkarListScreen(
         state.athkars.size
     }
     )
+
+    var expanded by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -108,14 +116,23 @@ fun AthkarListScreen(
                     )
                 },
                 rightIcon = {
-                    Icon(
-                        modifier = Modifier.clickable {
-                            // show popup menu
-                        },
-                        painter = painterResource(id = R.drawable.ic_export),
-                        tint = Color.White,
-                        contentDescription = "export icon"
-                    )
+                    Box {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                expanded = true
+                            },
+                            painter = painterResource(id = R.drawable.ic_export),
+                            tint = Color.White,
+                            contentDescription = "export icon"
+                        )
+
+                        ExportPopupMenu(
+                            expanded = expanded,
+                            setExpanded = { expanded = it },
+                            onVideoTap = { /* handle video export */ },
+                            onImageTap = { /* handle image export */ }
+                        )
+                    }
                 }
             )
 
