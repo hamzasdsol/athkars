@@ -4,7 +4,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
         android:name=".application.App"
@@ -32,11 +31,6 @@
         <receiver android:name=".edit_prayer.broadcast_receiver.AlarmReceiver"
             android:exported="true"
             android:permission="android.permission.SCHEDULE_EXACT_ALARM">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
         </receiver>
     </application>
 

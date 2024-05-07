@@ -168,7 +168,7 @@ class EditPrayerViewModel @Inject constructor(
                 )
 
                 if (event.value) {
-                    val twoMinutes = 2 * 60 * 1000
+                    val twoMinutes = 1 * 60 * 1000
                     val prayerTime = Date().time + twoMinutes
                     val requestCode = generateRequestCodeForPrayer(event.key)
                     scheduleNotification(prayerTime, event.key.name, requestCode)
@@ -225,7 +225,12 @@ class EditPrayerViewModel @Inject constructor(
             )
 
             if (pendingIntent != null) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, prayerTime, pendingIntent)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    if (alarmManager.canScheduleExactAlarms())
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, prayerTime, pendingIntent)
+                } else {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, prayerTime, pendingIntent)
+                }
             } else {
                 Log.e("ScheduleNotification", "PendingIntent is null")
             }
