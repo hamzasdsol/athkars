@@ -5,7 +5,7 @@ import com.app.athkar.data.model.CurrentPrayerDetails
 import com.app.athkar.data.model.network.City
 
 data class HomeState(
-    val isFirstTime: Boolean = true,
+    val showDialog: Boolean = false,
     val location: String = "",
     val cities: List<City> = emptyList(),
     val currentPrayer: CurrentPrayerDetails = CurrentPrayerDetails(

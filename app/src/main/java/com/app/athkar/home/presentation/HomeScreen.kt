@@ -1,6 +1,10 @@
 package com.app.athkar.home.presentation
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,8 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import com.app.athkar.R
 import com.app.athkar.core.navigation.ScreenRoute
+import com.app.athkar.edit_prayer.presentation.EditPrayerViewModelEvent
 import com.app.athkar.home.presentation.composables.AllPrayers
 import com.app.athkar.home.presentation.composables.CurrentPrayerDetails
 import com.app.athkar.home.presentation.composables.SelectCityDropDown
@@ -59,8 +65,18 @@ fun HomeScreen(
     uiEvent: SharedFlow<HomeUIEvent> = MutableSharedFlow(),
     navigateTo: (String) -> Unit = {}
 ) {
-    val showDialog = remember { mutableStateOf(state.isFirstTime) }
     val context = LocalContext.current
+
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            onEvent(HomeViewModelEvent.SelectAutoLocation)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
         uiEvent.collect { event ->
@@ -136,10 +152,10 @@ fun HomeScreen(
             )
         }
 
-        if (showDialog.value) {
+        if (state.showDialog) {
             BasicAlertDialog(
                 modifier = Modifier.fillMaxWidth(),
-                onDismissRequest = { showDialog.value = false }
+                onDismissRequest = { onEvent(HomeViewModelEvent.UpdateShowDialog(false)) }
             ) {
                 Column(
                     modifier = Modifier
@@ -188,7 +204,7 @@ fun HomeScreen(
                                 .padding(16.dp)
                                 .clickable {
                                     if (state.location.isNotBlank()) {
-                                        showDialog.value = false
+                                        onEvent(HomeViewModelEvent.UpdateShowDialog(false))
                                         onEvent(HomeViewModelEvent.SelectAutoLocation)
                                     } else
                                         Toast
@@ -221,6 +237,19 @@ fun HomeScreen(
                                 .border(1.dp, Color.White)
                                 .background(ButtonBackground)
                                 .padding(16.dp)
+                                .clickable {
+                                    if (ActivityCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        ) != PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        requestPermissionLauncher.launch(
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                    } else {
+                                        onEvent(HomeViewModelEvent.SelectAutoLocation)
+                                    }
+                                }
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_location),
