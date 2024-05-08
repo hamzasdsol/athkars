@@ -47,7 +47,6 @@ fun Bitmap.saveToCache(context: Context): String {
 }
 
 
-
 private suspend fun scanFilePath(context: Context, filePath: String): Uri? {
     return suspendCancellableCoroutine { continuation ->
         MediaScannerConnection.scanFile(
@@ -69,25 +68,35 @@ private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, qual
     }
 }
 
-suspend fun createVideoFromImageAndAudio(imagePath: String, audioPath: String): String {
+suspend fun createVideoFromImageAndAudio(
+    context: Context,
+    imagePath: String,
+    audioPath: String
+): Uri? {
     val file = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
         "video-${System.currentTimeMillis()}.mp4"
     )
     val outputVideoPath = file.absolutePath
-    val command = "-loop 1 -i $imagePath -i $audioPath -c:v libx264 -tune stillimage -c:a aac -b:a 192k -vf \"scale='iw-mod(iw,2)':'ih-mod(ih,2)',format=yuv420p\" -shortest $outputVideoPath"
+    val command =
+        "-loop 1 -i $imagePath -i $audioPath -c:v libx264 -tune stillimage -c:a aac -b:a 192k -vf \"scale='iw-mod(iw,2)':'ih-mod(ih,2)',format=yuv420p\" -shortest $outputVideoPath"
     val rc = FFmpegKit.execute(command)
     return when {
         ReturnCode.isSuccess(rc.returnCode) -> {
             Log.i("Config.TAG", "Command execution completed successfully.")
-            outputVideoPath
+            scanFilePath(context, outputVideoPath)
         }
+
         ReturnCode.isCancel(rc.returnCode) -> {
             Log.i("Config.TAG", "Command execution cancelled by user.")
             throw Exception("Command execution cancelled by user.")
         }
+
         else -> {
-            Log.i("Config.TAG",String.format("Command failed with state %s and rc %s.%s", rc.state, rc.returnCode))
+            Log.i(
+                "Config.TAG",
+                String.format("Command failed with state %s and rc %s.%s", rc.state, rc.returnCode)
+            )
             rc.failStackTrace
             throw Exception("Command execution failed with rc=$rc")
         }
