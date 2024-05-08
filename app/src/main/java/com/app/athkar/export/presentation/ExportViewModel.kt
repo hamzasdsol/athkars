@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.exoplayer.ExoPlayer
 import com.app.athkar.R
 import com.app.athkar.di.ResourceProvider
 import com.app.athkar.domain.repository.AppRepository
@@ -20,12 +21,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
-import java.io.IOException
-import java.util.concurrent.TimeoutException
 import javax.inject.Inject
-import com.app.athkar.domain.Result
-import java.net.UnknownHostException
 
 @HiltViewModel
 class ExportViewModel @Inject constructor(
@@ -34,31 +30,14 @@ class ExportViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
-    private val audioUrl = "https://rommanapps.com/android/theker_43.mp3"
 
-    private val _state = mutableStateOf(ExportState(audioUrl = audioUrl))
+    private val exoPlayer = ExoPlayer.Builder(resourceProvider.getApplicationContext()).build()
+
+    private val _state = mutableStateOf(ExportState(exoPlayer))
     val state: State<ExportState> = _state
 
     private val _uiEvent = MutableSharedFlow<ExportScreenUiEvent>()
     val uiEvent: SharedFlow<ExportScreenUiEvent> = _uiEvent.asSharedFlow()
-
-    init {
-        getCities()
-    }
-
-    private fun getCities() {
-        viewModelScope.launch {
-            when (val citiesResponse = appRepository.getCities()) {
-                is Result.Success -> {
-                    _state.value = state.value.copy(text = citiesResponse.toString())
-                }
-
-                is Result.Failure -> {
-                    handleError(citiesResponse.exception)
-                }
-            }
-        }
-    }
 
     fun onEvent(event: ExportViewModelEvent) {
         when (event) {
@@ -78,12 +57,9 @@ class ExportViewModel @Inject constructor(
 
             is ExportViewModelEvent.Download -> {
                 viewModelScope.launch {
-                    _state.value = ExportState("Downloading...")
                     val downloadedFile = audioDownloaderService.downloadAudio(event.downloadUrl)
                     downloadedFile?.let {
-                        _state.value = ExportState("Downloaded to $it")
                     } ?: run {
-                        _state.value = ExportState("Failed to download")
                     }
                 }
             }
@@ -93,71 +69,34 @@ class ExportViewModel @Inject constructor(
                     val bitmap: Bitmap = event.picture.createBitmapFromPicture()
                     try {
                         val uri = bitmap.saveToDisk(event.context)
-                        _state.value = state.value.copy(text = uri.toString())
+                        _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.image_saved)))
                     } catch (e: Exception) {
-                        _state.value = state.value.copy(text = e.message ?: "Failed to save")
+                        _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_save)))
                     }
                 }
             }
 
             is ExportViewModelEvent.ExportVideo -> {
                 viewModelScope.launch {
+                    _state.value = state.value.copy(isLoading = true)
                     try {
                         val bitmap: Bitmap = event.picture.createBitmapFromPicture()
                         val imagePath = bitmap.saveToCache(event.context)
                         val downloadedFile = audioDownloaderService.downloadAudio(event.audioUrl)
                         val audioPath = downloadedFile?.path ?: ""
-                        val videoPath = withContext(Dispatchers.IO) {
-                            createVideoFromImageAndAudio(imagePath, audioPath)
+                        val videoUri = withContext(Dispatchers.IO) {
+                            createVideoFromImageAndAudio(event.context,imagePath, audioPath)
                         }
-                        _state.value = state.value.copy(text = videoPath)
+                        _state.value = state.value.copy(isLoading = false)
+                        if (videoUri != null) {
+                            _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.video_saved)))
+                        } else {
+                            _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_save)))
+                        }
                     } catch (e: Exception) {
-                        _state.value = state.value.copy(text = e.message ?: "Failed to save")
+                        _state.value = state.value.copy(isLoading = false)
+                        _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_save)))
                     }
-                }
-            }
-        }
-    }
-
-    private fun handleError(exception: Exception) {
-        viewModelScope.launch {
-            when (exception) {
-                is UnknownHostException -> {
-                    _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.please_check_your_internet_connection)))
-                }
-
-                is IOException -> {
-                    _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.slower_internet_connection)))
-                }
-
-                is TimeoutException -> {
-                    _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.timeout_error)))
-                }
-
-                is HttpException -> {
-                    if (exception.code() == 401) {
-                        _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.invalid_email_or_password)))
-                    } else if (exception.code() == 500) {
-                        _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.something_went_wrong)))
-                    } else {
-                        _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.unknown_error_occurred)))
-                    }
-                }
-
-                is IllegalArgumentException -> {
-                    _uiEvent.emit(
-                        ExportScreenUiEvent.ShowMessage(
-                            exception.message ?: exception.toString()
-                        )
-                    )
-                }
-
-                else -> {
-                    _uiEvent.emit(
-                        ExportScreenUiEvent.ShowMessage(
-                            exception.message ?: exception.toString()
-                        )
-                    )
                 }
             }
         }

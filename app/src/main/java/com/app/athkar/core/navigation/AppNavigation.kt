@@ -2,15 +2,17 @@ package com.app.athkar.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.app.athkar.MainActivityViewModel
 import com.app.athkar.athkar_list.presentation.AthkarListScreen
 import com.app.athkar.athkar_list.presentation.AthkarsViewModel
 import com.app.athkar.edit_prayer.presentation.EditPrayerScreen
-import com.app.athkar.edit_prayer.presentation.EditPrayerState
 import com.app.athkar.edit_prayer.presentation.EditPrayerViewModel
+import com.app.athkar.export.enums.EXPORTTYPE
 import com.app.athkar.export.presentation.ExportScreen
 import com.app.athkar.export.presentation.ExportViewModel
 import com.app.athkar.home.presentation.HomeScreen
@@ -18,7 +20,7 @@ import com.app.athkar.home.presentation.HomeViewModel
 
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(mainActivityViewModel: MainActivityViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = ScreenRoute.HOME) {
         composable(ScreenRoute.HOME) {
@@ -35,19 +37,31 @@ fun AppNavigation() {
             val editPrayerViewModel: EditPrayerViewModel = hiltViewModel()
             EditPrayerScreen(
                 state = editPrayerViewModel.state.value,
-                onEvent = editPrayerViewModel::onEvent
+                onEvent = editPrayerViewModel::onEvent,
+                uiEvent = editPrayerViewModel.uiEvent,
             ) {
                 navController.navigateUp()
             }
         }
 
-        composable(ScreenRoute.EXPORT) {
+        composable(
+            ScreenRoute.EXPORT + "/{exportType}",
+            arguments = listOf(
+                navArgument(
+                    "exportType",
+                    builder = { type = NavType.StringType }),
+            )
+        ) {backStackEntry ->
             val exportViewModel: ExportViewModel = hiltViewModel()
             ExportScreen(
                 state = exportViewModel.state.value,
+                mainState = mainActivityViewModel.state.value,
                 onEvent = exportViewModel::onEvent,
                 uiEvent = exportViewModel.uiEvent,
-                navController = navController
+                exportType = EXPORTTYPE.valueOf(backStackEntry.arguments?.getString("exportType") ?: ""),
+                navigateUp = {
+                    navController.navigateUp()
+                },
             )
         }
 
@@ -56,6 +70,7 @@ fun AppNavigation() {
             AthkarListScreen(
                 state = athkarsViewModel.state.value,
                 onEvent = athkarsViewModel::onEvent,
+                onMainEvent = mainActivityViewModel::onEvent,
                 uiEvent = athkarsViewModel.uiEvent,
                 navigateTo = {
                     navController.navigate(it)

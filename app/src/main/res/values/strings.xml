@@ -6,4 +6,7 @@
     <string name="unknown_error_occurred">Unknown Error Occurred</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="timeout_error">Timeout Error</string>
+    <string name="image_saved">Image saved to Pictures</string>
+    <string name="failed_to_save">Failed to save</string>
+    <string name="video_saved">Video saved to Downloads</string>
 </resources>
