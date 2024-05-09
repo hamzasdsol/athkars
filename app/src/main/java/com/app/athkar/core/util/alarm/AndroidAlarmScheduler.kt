@@ -1,10 +1,10 @@
 package com.app.athkar.core.util.alarm
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import com.app.athkar.edit_prayer.broadcast_receiver.AlarmReceiver
 
@@ -14,16 +14,10 @@ class AndroidAlarmScheduler(
 
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-    override fun schedule(item: AlarmItem, onPermissionDenied: () -> Unit) {
+    @SuppressLint("ScheduleExactAlarm")
+    override fun schedule(item: AlarmItem) {
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (!alarmManager.canScheduleExactAlarms()) {
-                    onPermissionDenied()
-                    return
-                }
-            }
-
             val intent = Intent(context, AlarmReceiver::class.java).apply {
                 putExtra("prayer_name", item.message)
             }

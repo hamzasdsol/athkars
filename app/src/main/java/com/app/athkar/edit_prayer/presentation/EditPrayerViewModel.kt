@@ -200,11 +200,7 @@ class EditPrayerViewModel @Inject constructor(
                 date,
                 prayerName.name
             )
-            alarmScheduler.schedule(alarmItem) {
-                viewModelScope.launch(Dispatchers.Main) {
-                    _uiEvent.emit(EditPrayerUIEvent.RequestAlarmPermission)
-                }
-            }
+            alarmScheduler.schedule(alarmItem)
         }
     }
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.app.athkar.R
 import com.app.athkar.core.ui.AppToolbar
+import com.app.athkar.core.util.canScheduleExactAlarm
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.ButtonBackground
 import com.app.athkar.ui.theme.PopupBackground
@@ -60,15 +61,6 @@ fun EditPrayerScreen(
             when (uiEvent) {
                 is EditPrayerUIEvent.ShowMessage -> {
                     Toast.makeText(context, uiEvent.message, Toast.LENGTH_SHORT).show()
-                }
-
-                is EditPrayerUIEvent.RequestAlarmPermission -> {
-                    if (Build.VERSION.SDK_INT >= S) {
-                        Intent().also {
-                            it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-                            context.startActivity(it)
-                        }
-                    }
                 }
             }
         }
@@ -142,6 +134,10 @@ fun EditPrayerScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 PrayersDetails(state.prayers) { key, value ->
+
+                    if (!context.canScheduleExactAlarm()){
+                        return@PrayersDetails
+                    }
 
                     if (value && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         if (ActivityCompat.checkSelfPermission(
