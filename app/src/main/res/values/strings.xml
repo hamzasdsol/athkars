@@ -23,4 +23,5 @@
     <string name="iqama">Iqama</string>
     <string name="alarm">Alarm</string>
     <string name="export">Export</string>
+    <string name="permission_denied">Permission Denied</string>
 </resources>

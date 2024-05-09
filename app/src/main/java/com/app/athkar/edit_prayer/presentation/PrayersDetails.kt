@@ -1,15 +1,11 @@
 package com.app.athkar.edit_prayer.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -39,12 +35,10 @@ fun PrayersDetails(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(ButtonBackground),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(ButtonBackground), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier
-                .padding(top = 16.dp, bottom = 16.dp),
+            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -86,8 +80,7 @@ fun PrayersDetails(
                 .clip(
                     RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp)
                 )
-                .background(PopupBackground),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(PopupBackground), horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyColumn {
                 itemsIndexed(list) { index, prayer ->
@@ -102,10 +95,6 @@ fun PrayersDetails(
 
 enum class PrayerName {
     FAJR, DUHUR, ASR, MAGHRIB, ISHA
-}
-
-fun generateRequestCodeForPrayer(prayerName: PrayerName): Int {
-    return prayerName.ordinal + 100
 }
 
 

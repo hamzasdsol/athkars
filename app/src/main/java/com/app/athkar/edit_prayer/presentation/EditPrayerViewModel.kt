@@ -1,23 +1,19 @@
 package com.app.athkar.edit_prayer.presentation
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
 import com.app.athkar.core.util.LocationSelectionPreferences
+import com.app.athkar.core.util.alarm.AlarmItem
+import com.app.athkar.core.util.alarm.AlarmScheduler
 import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
 import com.app.athkar.core.util.toPrayerDate
 import com.app.athkar.data.model.network.GetPrayerTimesResponse
 import com.app.athkar.di.ResourceProvider
 import com.app.athkar.domain.Result
 import com.app.athkar.domain.repository.AppRepository
-import com.app.athkar.edit_prayer.broadcast_receiver.AlarmReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,6 +34,7 @@ class EditPrayerViewModel @Inject constructor(
     private val appRepository: AppRepository,
     private val resourceProvider: ResourceProvider,
     private val locationSelectionPreferences: LocationSelectionPreferences,
+    private val alarmScheduler: AlarmScheduler
 ) : ViewModel() {
     private val _state = mutableStateOf(EditPrayerState())
     val state: State<EditPrayerState> = _state
@@ -167,34 +164,14 @@ class EditPrayerViewModel @Inject constructor(
                     }
                 )
                 viewModelScope.launch(Dispatchers.IO) {
-
-                    when (event.key) {
-                        PrayerName.FAJR -> {
-                           setUpAlarms(event.key, event.value, 0)
-                        }
-
-                        PrayerName.DUHUR -> {
-                            setUpAlarms(event.key, event.value, 2)
-                        }
-
-                        PrayerName.ASR -> {
-                            setUpAlarms(event.key, event.value, 3)
-                        }
-
-                        PrayerName.MAGHRIB -> {
-                            setUpAlarms(event.key, event.value, 4)
-                        }
-
-                        PrayerName.ISHA -> {
-                            setUpAlarms(event.key, event.value, 5)
-                        }
-                    }
+                    val prayerIndex = if (event.key == PrayerName.FAJR) 0 else event.key.ordinal + 1
+                    setUpAlarms(event.key, event.value, prayerIndex)
                 }
             }
         }
     }
 
-    private fun setUpAlarms(prayerName: PrayerName, isEnabled : Boolean, prayerIndex: Int){
+    private fun setUpAlarms(prayerName: PrayerName, isEnabled: Boolean, prayerIndex: Int) {
         val prayers = mutableListOf<Date>()
         prayerTimesMap.forEach { (key, value) ->
             prayers.add("$key ${value[prayerIndex]}".toPrayerDate())
@@ -204,71 +181,30 @@ class EditPrayerViewModel @Inject constructor(
         if (isEnabled)
             scheduleNotifications(prayers, prayerName)
         else
-            cancelNotification(generateRequestCodeForPrayer(prayerName))
+            cancelNotifications(prayers, prayerName)
+    }
+
+    private fun cancelNotifications(prayerList: MutableList<Date>, prayerName: PrayerName) {
+        prayerList.forEach { date ->
+            val alarmItem = AlarmItem(
+                date,
+                prayerName.name
+            )
+            alarmScheduler.cancel(alarmItem)
+        }
     }
 
     private fun scheduleNotifications(prayerList: MutableList<Date>, prayerName: PrayerName) {
         prayerList.forEach { date ->
-            val requestCode = generateRequestCodeForPrayer(prayerName)
-            scheduleNotification(date.time, prayerName.name, requestCode)
-        }
-    }
-
-    private fun cancelNotification(requestCode: Int) {
-        val alarmManager = resourceProvider.getApplicationContext()
-            .getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(resourceProvider.getApplicationContext(), AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            resourceProvider.getApplicationContext(),
-            requestCode,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        if (pendingIntent == null) {
-            Log.e("CancelNotification", "PendingIntent is null")
-            return
-        }
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
-    }
-
-    private fun isAlarmScheduled(context: Context, requestCode: Int): Boolean {
-        val intent = Intent(context, AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            requestCode,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        return pendingIntent != null
-    }
-
-    private fun scheduleNotification(prayerTime: Long, prayerName: String, requestCode: Int) {
-        try {
-            val context = resourceProvider.getApplicationContext()
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, AlarmReceiver::class.java)
-            intent.putExtra("prayer_name", prayerName)
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            val alarmItem = AlarmItem(
+                date,
+                prayerName.name
             )
-
-            if (pendingIntent != null) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                    if (alarmManager.canScheduleExactAlarms())
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, prayerTime, pendingIntent)
-                } else {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, prayerTime, pendingIntent)
+            alarmScheduler.schedule(alarmItem) {
+                viewModelScope.launch(Dispatchers.Main) {
+                    _uiEvent.emit(EditPrayerUIEvent.RequestAlarmPermission)
                 }
-            } else {
-                Log.e("ScheduleNotification", "PendingIntent is null")
             }
-        } catch (e: Exception) {
-            Log.e("ScheduleNotification", "Error scheduling notification", e)
         }
     }
-
 }

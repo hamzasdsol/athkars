@@ -68,7 +68,7 @@ object NetworkModule {
     @Provides
     fun provideHttpInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.NONE
         }
     }
 

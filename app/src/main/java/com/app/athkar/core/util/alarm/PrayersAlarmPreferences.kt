@@ -1,7 +1,5 @@
 package com.app.athkar.core.util.alarm
 
-import com.app.athkar.edit_prayer.presentation.PrayerName
-
 interface PrayersAlarmPreferences {
 
     fun savePrayerNotification(key: String, value: Boolean)
