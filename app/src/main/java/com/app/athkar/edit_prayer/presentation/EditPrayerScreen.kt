@@ -1,5 +1,6 @@
 package com.app.athkar.edit_prayer.presentation
 
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION_CODES.S
 import android.widget.Toast
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import com.app.athkar.R
 import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.core.ui.AppToolbar
@@ -70,7 +72,7 @@ fun EditPrayerScreen(
         mutableStateOf(Pair(PrayerName.FAJR, false))
     }
 
-    val permissions = remember(context) { arrayOf<String>() }
+    var permissions = remember(context) { arrayOf<String>() }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -78,8 +80,7 @@ fun EditPrayerScreen(
         if (p.all { it.value }) {
             onEvent(
                 EditPrayerViewModelEvent.SetPrayerAlarmPreference(
-                    prayerAlarmPreferences.value.first,
-                    prayerAlarmPreferences.value.second
+                    prayerAlarmPreferences.value.first, prayerAlarmPreferences.value.second
                 )
             )
         } else {
@@ -119,8 +120,12 @@ fun EditPrayerScreen(
 
             Box(modifier = Modifier.clip(RoundedCornerShape(8.dp))) {
                 Image(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     painter = painterResource(id = R.drawable.blue_mosque),
-                    contentDescription = "mosque"
+                    contentDescription = "mosque",
+                    contentScale = ContentScale.FillWidth,
                 )
             }
 
@@ -130,14 +135,34 @@ fun EditPrayerScreen(
             ) {
                 PrayersDetails(state.prayers) { key, value ->
                     if (value && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        permissions.plus(android.Manifest.permission.POST_NOTIFICATIONS)
+                        if (ActivityCompat.checkSelfPermission(
+                                context, android.Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            permissions =
+                                permissions.plus(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
                     }
                     if (Build.VERSION.SDK_INT >= S) {
-                        permissions.plus(android.Manifest.permission.SCHEDULE_EXACT_ALARM)
+                        if (ActivityCompat.checkSelfPermission(
+                                context, android.Manifest.permission.SCHEDULE_EXACT_ALARM
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            permissions =
+                                permissions.plus(android.Manifest.permission.SCHEDULE_EXACT_ALARM)
+                        }
+                    }
+                    prayerAlarmPreferences.value = Pair(key, value)
+                    if (permissions.isEmpty()) {
+                        onEvent(
+                            EditPrayerViewModelEvent.SetPrayerAlarmPreference(
+                                prayerAlarmPreferences.value.first,
+                                prayerAlarmPreferences.value.second
+                            )
+                        )
+                    } else {
                         requestPermissionLauncher.launch(permissions)
                     }
-
-                    prayerAlarmPreferences.value = Pair(key, value)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

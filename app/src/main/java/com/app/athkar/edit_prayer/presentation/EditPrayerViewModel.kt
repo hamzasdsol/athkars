@@ -12,12 +12,14 @@ import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
 import com.app.athkar.core.util.LocationSelectionPreferences
 import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
+import com.app.athkar.core.util.toPrayerDate
 import com.app.athkar.data.model.network.GetPrayerTimesResponse
 import com.app.athkar.di.ResourceProvider
 import com.app.athkar.domain.Result
 import com.app.athkar.domain.repository.AppRepository
 import com.app.athkar.edit_prayer.broadcast_receiver.AlarmReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -68,7 +70,7 @@ class EditPrayerViewModel @Inject constructor(
     }
 
     private fun getPrayerTimes() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val currentLocation = locationSelectionPreferences.currentLocation?.file ?: "amman"
             when (val prayerTimesResponse = appRepository.getPrayerTimes(currentLocation)) {
                 is Result.Success -> {
@@ -79,8 +81,10 @@ class EditPrayerViewModel @Inject constructor(
                     val currentDateTime = Date()
                     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     val date: String = dateFormat.format(currentDateTime)
-                    val currentPrayerTimesList: List<String> = prayerTimes[date] ?: emptyList()
-                    if (currentPrayerTimesList.isNotEmpty()) {
+                    val currentPrayerTimesList: MutableList<String> =
+                        (prayerTimes[date] ?: emptyList()).toMutableList()
+                    if (currentPrayerTimesList.isNotEmpty() && currentPrayerTimesList.size > 1) {
+                        currentPrayerTimesList.removeAt(1)
                         val data = prayersAlarmPreferences.prayerAlarmState()
                         val prayers = mutableListOf<Prayer>()
                         data.forEachIndexed { index, it ->
@@ -162,19 +166,51 @@ class EditPrayerViewModel @Inject constructor(
                             this[event.key.ordinal].copy(isAlarmEnabled = event.value)
                     }
                 )
+                viewModelScope.launch(Dispatchers.IO) {
 
-                if (event.value) {
-                    val twoMinutes = 2 * 60 * 1000
-                    val prayerTime = Date().time + twoMinutes
-                    val requestCode = generateRequestCodeForPrayer(event.key)
-                    scheduleNotification(prayerTime, event.key.name, requestCode)
-                } else {
-                    val requestCode =
-                        generateRequestCodeForPrayer(event.key)
-                    if (isAlarmScheduled(resourceProvider.getApplicationContext(), requestCode))
-                        cancelNotification(requestCode)
+                    when (event.key) {
+                        PrayerName.FAJR -> {
+                           setUpAlarms(event.key, event.value, 0)
+                        }
+
+                        PrayerName.DUHUR -> {
+                            setUpAlarms(event.key, event.value, 2)
+                        }
+
+                        PrayerName.ASR -> {
+                            setUpAlarms(event.key, event.value, 3)
+                        }
+
+                        PrayerName.MAGHRIB -> {
+                            setUpAlarms(event.key, event.value, 4)
+                        }
+
+                        PrayerName.ISHA -> {
+                            setUpAlarms(event.key, event.value, 5)
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private fun setUpAlarms(prayerName: PrayerName, isEnabled : Boolean, prayerIndex: Int){
+        val prayers = mutableListOf<Date>()
+        prayerTimesMap.forEach { (key, value) ->
+            prayers.add("$key ${value[prayerIndex]}".toPrayerDate())
+        }
+        val currentDate = Date()
+        prayers.removeAll { it.before(currentDate) }
+        if (isEnabled)
+            scheduleNotifications(prayers, prayerName)
+        else
+            cancelNotification(generateRequestCodeForPrayer(prayerName))
+    }
+
+    private fun scheduleNotifications(prayerList: MutableList<Date>, prayerName: PrayerName) {
+        prayerList.forEach { date ->
+            val requestCode = generateRequestCodeForPrayer(prayerName)
+            scheduleNotification(date.time, prayerName.name, requestCode)
         }
     }
 

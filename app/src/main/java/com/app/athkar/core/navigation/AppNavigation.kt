@@ -55,7 +55,7 @@ fun AppNavigation(mainActivityViewModel: MainActivityViewModel) {
             val exportViewModel: ExportViewModel = hiltViewModel()
             ExportScreen(
                 state = exportViewModel.state.value,
-                mainState = mainActivityViewModel.state.value,
+                athkar = mainActivityViewModel.state.value.athkar,
                 onEvent = exportViewModel::onEvent,
                 uiEvent = exportViewModel.uiEvent,
                 exportType = EXPORTTYPE.valueOf(backStackEntry.arguments?.getString("exportType") ?: ""),
