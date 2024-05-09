@@ -82,9 +82,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    //Constraint Layout
-    implementation(libs.constraintlayout.compose)
-
     //Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
@@ -101,10 +98,6 @@ dependencies {
 
     //Splash API
     implementation(libs.splash.screen)
-
-    // Compose Destinations
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
     
     //Media3
     implementation(libs.media3.exoplayer)
@@ -116,8 +109,4 @@ dependencies {
 
     implementation(libs.accompanist.pager.indicators)
 
-}
-
-ksp {
-    arg("compose-destinations.generateNavGraphs", "false")
 }

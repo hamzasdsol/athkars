@@ -1,8 +1,10 @@
 package com.app.athkar.edit_prayer.presentation
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION_CODES.S
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,16 +40,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.app.athkar.R
-import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.core.ui.AppToolbar
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.ButtonBackground
 import com.app.athkar.ui.theme.PopupBackground
-import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
-@Destination(ScreenRoute.EDIT_PRAYER)
 @Composable
 fun EditPrayerScreen(
     state: EditPrayerState,
@@ -63,6 +62,14 @@ fun EditPrayerScreen(
                     Toast.makeText(context, uiEvent.message, Toast.LENGTH_SHORT).show()
                 }
 
+                is EditPrayerUIEvent.RequestAlarmPermission -> {
+                    if (Build.VERSION.SDK_INT >= S) {
+                        Intent().also {
+                            it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                            context.startActivity(it)
+                        }
+                    }
+                }
             }
         }
 
@@ -84,7 +91,8 @@ fun EditPrayerScreen(
                 )
             )
         } else {
-            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,
+                context.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -134,6 +142,7 @@ fun EditPrayerScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 PrayersDetails(state.prayers) { key, value ->
+
                     if (value && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         if (ActivityCompat.checkSelfPermission(
                                 context, android.Manifest.permission.POST_NOTIFICATIONS
@@ -143,15 +152,7 @@ fun EditPrayerScreen(
                                 permissions.plus(android.Manifest.permission.POST_NOTIFICATIONS)
                         }
                     }
-                    if (Build.VERSION.SDK_INT >= S) {
-                        if (ActivityCompat.checkSelfPermission(
-                                context, android.Manifest.permission.SCHEDULE_EXACT_ALARM
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            permissions =
-                                permissions.plus(android.Manifest.permission.SCHEDULE_EXACT_ALARM)
-                        }
-                    }
+
                     prayerAlarmPreferences.value = Pair(key, value)
                     if (permissions.isEmpty()) {
                         onEvent(

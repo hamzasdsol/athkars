@@ -30,8 +30,7 @@
         </activity>
 
         <receiver android:name=".edit_prayer.broadcast_receiver.AlarmReceiver"
-            android:exported="true"
-            android:permission="android.permission.SCHEDULE_EXACT_ALARM">
+            android:exported="false">
         </receiver>
     </application>
 
