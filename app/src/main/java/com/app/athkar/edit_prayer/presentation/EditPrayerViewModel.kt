@@ -52,22 +52,18 @@ class EditPrayerViewModel @Inject constructor(
             prayers.add(
                 Prayer(
                     it.first,
-                    iqamaTime = "6:35",
-                    prayerTime = "6:14",
+                    iqamaTime = "",
+                    prayerTime = "",
                     isAlarmEnabled = it.second
                 )
             )
         }
 
-        println("PrayersAlarm :: $data")
-
         _state.value = state.value.copy(
             prayers = prayers
         )
 
-        println("PrayersAlarm :: prayers state $prayers")
-
-        getPrayerTimes()
+//        getPrayerTimes()
 
     }
 

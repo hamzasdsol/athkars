@@ -59,6 +59,7 @@ private fun AppToolbarPreview() {
                 title = "App toolbar title very very long",
                 leftIcon = {
                     Icon(
+                        modifier = Modifier.padding(8.dp),
                         painter = painterResource(id = R.drawable.ic_back),
                         tint = Color.White,
                         contentDescription = "back"
@@ -66,6 +67,7 @@ private fun AppToolbarPreview() {
                 },
                 rightIcon = {
                     Icon(
+                        modifier = Modifier.padding(8.dp),
                         painter = painterResource(id = R.drawable.ic_export),
                         tint = Color.White,
                         contentDescription = "export"

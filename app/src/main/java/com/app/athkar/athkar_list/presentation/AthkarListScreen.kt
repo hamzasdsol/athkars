@@ -29,10 +29,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.athkar.MainActivityModelEvent
@@ -54,7 +56,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Destination(ScreenRoute.ATHKAR_LIST)
 @Composable
 fun AthkarListScreen(
     state: AthkarListState,
@@ -105,7 +106,7 @@ fun AthkarListScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AppToolbar(title = "Athkar", leftIcon = {
+            AppToolbar(title = stringResource(id = R.string.athkar), leftIcon = {
                 Icon(
                     modifier = Modifier.clickable {
                         navigateUp()
@@ -148,7 +149,9 @@ fun AthkarListScreen(
             }
 
             Column(
-                Modifier.verticalScroll(rememberScrollState()),
+                Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

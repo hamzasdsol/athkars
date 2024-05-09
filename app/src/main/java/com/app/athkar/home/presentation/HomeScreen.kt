@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +48,7 @@ import com.app.athkar.core.navigation.ScreenRoute
 import com.app.athkar.edit_prayer.presentation.EditPrayerViewModelEvent
 import com.app.athkar.home.presentation.composables.AllPrayers
 import com.app.athkar.home.presentation.composables.CurrentPrayerDetails
+import com.app.athkar.home.presentation.composables.LocationSelectionDialog
 import com.app.athkar.home.presentation.composables.SelectCityDropDown
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.ButtonBackground
@@ -56,8 +58,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 
-@Destination(ScreenRoute.HOME)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
@@ -111,7 +111,7 @@ fun HomeScreen(
                 .padding(top = 32.dp)
         ) {
             Text(
-                text = "Your location",
+                text = stringResource(R.string.your_location),
                 color = Color.White,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.SemiBold,
@@ -136,7 +136,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "Athkar",
+                text = stringResource(R.string.athkar),
                 fontWeight = FontWeight.W700,
                 color = Color.Black
             )
@@ -153,118 +153,20 @@ fun HomeScreen(
         }
 
         if (state.showDialog) {
-            BasicAlertDialog(
-                modifier = Modifier.fillMaxWidth(),
-                onDismissRequest = { onEvent(HomeViewModelEvent.UpdateShowDialog(false)) }
+            LocationSelectionDialog(
+                state = state,
+                onEvent = onEvent
             ) {
-                Column(
-                    modifier = Modifier
-                        .clip(
-                            RoundedCornerShape(8.dp)
-                        )
-                        .background(ButtonBackground),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
                 ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                        text = "Select your location",
-                        color = Color.Black,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.W700,
-                        fontSize = 20.sp
+                    requestPermissionLauncher.launch(
+                        Manifest.permission.ACCESS_COARSE_LOCATION
                     )
-                    Column(
-                        modifier = Modifier
-                            .clip(
-                                RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp)
-                            )
-                            .background(PopupBackground)
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        Text(
-                            text = "Select your location from the list or give us location access",
-                            textAlign = TextAlign.Center,
-                            color = Color.White,
-                            fontSize = 16.sp
-                        )
-
-                        SelectCityDropDown(cities = state.cities) {
-                            onEvent(HomeViewModelEvent.UpdateLocation(it))
-                        }
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .width(150.dp)
-                                .border(1.dp, Color.White, RoundedCornerShape(8.dp))
-                                .padding(16.dp)
-                                .clickable {
-                                    if (state.location.isNotBlank()) {
-                                        onEvent(HomeViewModelEvent.UpdateShowDialog(false))
-                                        onEvent(HomeViewModelEvent.SelectAutoLocation)
-                                    } else
-                                        Toast
-                                            .makeText(
-                                                context,
-                                                "Please select a location",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                            .show()
-                                }
-                        ) {
-                            Text(
-                                text = "Done",
-                                color = Color.White,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.W800
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .border(1.dp, Color.White)
-                                .background(ButtonBackground)
-                                .padding(16.dp)
-                                .clickable {
-                                    if (ActivityCompat.checkSelfPermission(
-                                            context,
-                                            Manifest.permission.ACCESS_COARSE_LOCATION
-                                        ) != PackageManager.PERMISSION_GRANTED
-                                    ) {
-                                        requestPermissionLauncher.launch(
-                                            Manifest.permission.ACCESS_COARSE_LOCATION
-                                        )
-                                    } else {
-                                        onEvent(HomeViewModelEvent.SelectAutoLocation)
-                                    }
-                                }
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_location),
-                                colorFilter = ColorFilter.tint(color = PopupBackground),
-                                contentDescription = "Location"
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Auto",
-                                color = PopupBackground,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.W800
-                            )
-                        }
-                    }
+                } else {
+                    onEvent(HomeViewModelEvent.SelectAutoLocation)
                 }
             }
         }

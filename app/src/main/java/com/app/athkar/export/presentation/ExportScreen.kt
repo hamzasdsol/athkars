@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -44,6 +45,8 @@ import com.app.athkar.core.ui.AppToolbar
 import com.app.athkar.data.model.network.Athkar
 import com.app.athkar.export.enums.EXPORTTYPE
 import com.app.athkar.export.presentation.composables.CanvasImage
+import com.app.athkar.ui.theme.ButtonBackground
+import com.app.athkar.ui.theme.ControlsColor
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -130,7 +133,7 @@ fun ExportScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                AppToolbar(title = "Export", leftIcon = {
+                AppToolbar(title = stringResource(R.string.export), leftIcon = {
                     Icon(
                         modifier = Modifier.clickable {
                             navigateUp()
@@ -157,7 +160,7 @@ fun ExportScreen(
                                     )
                                 }
                             },
-                            painter = painterResource(id = R.drawable.ic_export),
+                            painter = painterResource(id = R.drawable.ic_download),
                             tint = Color.White,
                             contentDescription = "export icon"
                         )
@@ -205,7 +208,9 @@ fun ExportScreen(
                                     }
                                 }) {
                                 Icon(
-                                    painterResource(id = playerIcon), contentDescription = "Play/Pause"
+                                    painterResource(id = playerIcon),
+                                    contentDescription = "Play/Pause",
+                                    tint = ControlsColor
                                 )
                             }
                         }

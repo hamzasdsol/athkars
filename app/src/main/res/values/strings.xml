@@ -10,4 +10,17 @@
     <string name="failed_to_save">Failed to save</string>
     <string name="video_saved">Video saved to Downloads</string>
     <string name="failed_to_get_location">Failed to get location</string>
+    <string name="your_location">Your location</string>
+    <string name="select_your_location">Select your location</string>
+    <string name="select_your_location_from_the_list_or_give_us_location_access">Select your location from the list or give us location access</string>
+    <string name="done">Done</string>
+    <string name="auto">Auto</string>
+    <string name="athkar">Athkar</string>
+    <string name="prayer_time">Prayer time</string>
+    <string name="save">Save</string>
+    <string name="prayer">Prayer</string>
+    <string name="azan">Azan</string>
+    <string name="iqama">Iqama</string>
+    <string name="alarm">Alarm</string>
+    <string name="export">Export</string>
 </resources>

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -104,7 +105,7 @@ fun EditPrayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            AppToolbar(title = "Prayer time", leftIcon = {
+            AppToolbar(title = stringResource(R.string.prayer_time), leftIcon = {
                 Icon(
                     modifier = Modifier.clickable {
                         navigateUp()
@@ -149,7 +150,7 @@ fun EditPrayerScreen(
                     .padding(16.dp),
                     contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Save",
+                        text = stringResource(R.string.save),
                         color = PopupBackground,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.W800
