@@ -63,7 +63,7 @@ class EditPrayerViewModel @Inject constructor(
             prayers = prayers
         )
 
-//        getPrayerTimes()
+        getPrayerTimes()
 
     }
 
