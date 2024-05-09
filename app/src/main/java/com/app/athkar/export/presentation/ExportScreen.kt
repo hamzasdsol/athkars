@@ -38,14 +38,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.ui.PlayerView
-import com.app.athkar.MainActivityState
 import com.app.athkar.R
 import com.app.athkar.core.composables.LoadingDialog
 import com.app.athkar.core.ui.AppToolbar
 import com.app.athkar.data.model.network.Athkar
 import com.app.athkar.export.enums.EXPORTTYPE
 import com.app.athkar.export.presentation.composables.CanvasImage
-import com.app.athkar.ui.theme.ButtonBackground
 import com.app.athkar.ui.theme.ControlsColor
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -53,7 +51,7 @@ import kotlinx.coroutines.flow.SharedFlow
 @Composable
 fun ExportScreen(
     state: ExportState,
-    mainState: MainActivityState,
+    athkar: Athkar,
     onEvent: (ExportViewModelEvent) -> Unit = {},
     uiEvent: SharedFlow<ExportScreenUiEvent> = MutableSharedFlow(),
     exportType: EXPORTTYPE = EXPORTTYPE.IMAGE,
@@ -78,8 +76,8 @@ fun ExportScreen(
         })
     }
 
-    val mediaSource = remember(mainState.athkar.link) {
-        MediaItem.fromUri(mainState.athkar.link)
+    val mediaSource = remember(athkar.link) {
+        MediaItem.fromUri(athkar.link)
     }
 
     LaunchedEffect(Unit) {
@@ -155,7 +153,7 @@ fun ExportScreen(
 
                                     EXPORTTYPE.VIDEO -> onEvent(
                                         ExportViewModelEvent.ExportVideo(
-                                            context, picture.value, mainState.athkar.link
+                                            context, picture.value, athkar.link
                                         )
                                     )
                                 }
@@ -174,7 +172,7 @@ fun ExportScreen(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    if (mainState.athkar.link.isNotEmpty()) AndroidView(
+                    if (athkar.link.isNotEmpty()) AndroidView(
                         factory = { ctx ->
                             PlayerView(ctx).apply {
                                 player = state.exoPlayer
@@ -186,7 +184,7 @@ fun ExportScreen(
                             .height(0.dp)
                     )
 
-                    CanvasImage(mainState.athkar.text, picture.value)
+                    CanvasImage(athkar.text, picture.value)
 
                     if (exportType == EXPORTTYPE.VIDEO) {
                         Box(
@@ -224,5 +222,5 @@ fun ExportScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewExportScreen() {
-    ExportScreen(ExportState(), MainActivityState(Athkar("", "")))
+    ExportScreen(ExportState(), Athkar("", ""))
 }

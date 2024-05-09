@@ -13,7 +13,7 @@ class DefaultPrayersAlarmPreferences(
     override fun prayerAlarmState(): List<Pair<String, Boolean>> {
         val resultList = mutableListOf<Pair<String, Boolean>>()
         PrayerName.entries.forEach { key ->
-            val value = sharedPrefs.getBoolean(key.name, true)
+            val value = sharedPrefs.getBoolean(key.name, false)
             savePrayerNotification(key.name, value)
             resultList.add(Pair(key.name, value))
         }
