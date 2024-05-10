@@ -8,6 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
 import com.app.athkar.core.util.LocationSelectionPreferences
+import com.app.athkar.core.util.alarm.AlarmItem
+import com.app.athkar.core.util.alarm.AlarmScheduler
+import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
+import com.app.athkar.core.util.toPrayerDate
 import com.app.athkar.data.model.CurrentPrayerDetails
 import com.app.athkar.data.model.network.City
 import com.app.athkar.data.model.network.GetCitiesResponse
@@ -16,10 +20,12 @@ import com.app.athkar.data.model.toPrayersModel
 import com.app.athkar.di.ResourceProvider
 import com.app.athkar.domain.Result
 import com.app.athkar.domain.repository.AppRepository
+import com.app.athkar.edit_prayer.presentation.PrayerName
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -38,7 +44,9 @@ import kotlin.math.sqrt
 class HomeViewModel @Inject constructor(
     private val locationSelectionPreferences: LocationSelectionPreferences,
     private val resourceProvider: ResourceProvider,
-    private val appRepository: AppRepository
+    private val appRepository: AppRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val prayersAlarmPreferences: PrayersAlarmPreferences
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -51,9 +59,11 @@ class HomeViewModel @Inject constructor(
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private val prayerTimesMap = mutableMapOf<String, List<String>>()
+
     init {
         _state.value =
-                state.value.copy(showDialog = !locationSelectionPreferences.isLocationSelected())
+            state.value.copy(showDialog = !locationSelectionPreferences.isLocationSelected())
         if (locationSelectionPreferences.isLocationSelected()) {
             val location = locationSelectionPreferences.currentLocation
             if (location != null) {
@@ -66,11 +76,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPrayerTimes(currentLocation: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val prayerTimesResponse = appRepository.getPrayerTimes(currentLocation)) {
                 is Result.Success -> {
                     val response: GetPrayerTimesResponse = prayerTimesResponse.data
                     val prayerTimes = response.prayerTimes
+                    prayerTimesMap.clear()
+                    prayerTimesMap.putAll(prayerTimes)
                     val currentDateTime = Date()
                     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     val date: String = dateFormat.format(currentDateTime)
@@ -97,7 +109,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getCities() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             when (val citiesResponse = appRepository.getCities()) {
                 is Result.Success -> {
                     val response: GetCitiesResponse = citiesResponse.data
@@ -126,7 +138,7 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeViewModelEvent) {
         when (event) {
             is HomeViewModelEvent.SelectAutoLocation -> {
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     fusedLocationClient =
                         LocationServices.getFusedLocationProviderClient(resourceProvider.getApplicationContext())
                     fusedLocationClient.lastLocation
@@ -136,8 +148,12 @@ class HomeViewModel @Inject constructor(
                                 val closestCity = getClosestCity(latLng)
                                 locationSelectionPreferences.setIsLocationSelected()
                                 locationSelectionPreferences.setCurrentLocation(closestCity)
-                                _state.value = state.value.copy(location = closestCity.name_en, showDialog = false)
+                                _state.value = state.value.copy(
+                                    location = closestCity.name_en,
+                                    showDialog = false
+                                )
                                 getPrayerTimes(closestCity.file)
+                                setupAlarms()
                             } else {
                                 emitEvent(HomeUIEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_get_location)))
                             }
@@ -153,14 +169,30 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeViewModelEvent.UpdateLocation -> {
-                locationSelectionPreferences.setIsLocationSelected()
                 locationSelectionPreferences.setCurrentLocation(event.city)
-                _state.value = state.value.copy(location = event.city.name_en)
-                getPrayerTimes(event.city.file)
             }
 
             is HomeViewModelEvent.UpdateShowDialog -> {
+                locationSelectionPreferences.setIsLocationSelected()
+                val city = locationSelectionPreferences.currentLocation ?: return
+                _state.value = state.value.copy(location = city.name_en)
+                getPrayerTimes(city.file)
+                setupAlarms()
                 _state.value = state.value.copy(showDialog = event.showDialog)
+            }
+        }
+    }
+
+    private fun setupAlarms() {
+        viewModelScope.launch(Dispatchers.IO) {
+            PrayerName.entries.forEach { payerName ->
+                val prayers = mutableListOf<Date>()
+                val prayerIndex = if (payerName == PrayerName.FAJR) 0 else payerName.ordinal + 1
+                prayerTimesMap.forEach { (key, value) ->
+                    prayers.add("$key ${value[prayerIndex]}".toPrayerDate())
+                }
+                scheduleNotifications(prayers, payerName)
+                prayersAlarmPreferences.savePrayerNotification(payerName.name, true)
             }
         }
     }
@@ -218,6 +250,16 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun scheduleNotifications(prayerList: MutableList<Date>, prayerName: PrayerName) {
+        prayerList.forEach { date ->
+            val alarmItem = AlarmItem(
+                date,
+                prayerName.name
+            )
+            alarmScheduler.schedule(alarmItem)
         }
     }
 }

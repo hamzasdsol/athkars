@@ -102,7 +102,6 @@ fun LocationSelectionDialog(
                         .clickable {
                             if (state.location.isNotBlank()) {
                                 onEvent(HomeViewModelEvent.UpdateShowDialog(false))
-                                onEvent(HomeViewModelEvent.SelectAutoLocation)
                             } else
                                 Toast
                                     .makeText(
