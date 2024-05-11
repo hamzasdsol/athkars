@@ -22,3 +22,4 @@ val PagerInActiveIndicator = Color(0xFFCECECE)
 
 val ControlsColor = Color(0xFF42A8C3)
 val PagerControlsBackground = Color(0xFFF0F0F0)
+val DividerColor = Color.Black.copy(alpha = 0.43f)

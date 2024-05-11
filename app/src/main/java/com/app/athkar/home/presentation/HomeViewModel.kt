@@ -9,9 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
 import com.app.athkar.core.network.NetworkResult
 import com.app.athkar.core.util.LocationSelectionPreferences
-import com.app.athkar.core.util.alarm.AlarmItem
-import com.app.athkar.core.util.alarm.AlarmScheduler
-import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
+import com.app.athkar.shared.alarm.AlarmItem
+import com.app.athkar.shared.alarm.AlarmScheduler
+import com.app.athkar.shared.alarm.PrayersAlarmPreferences
 import com.app.athkar.core.util.toPrayerDate
 import com.app.athkar.home.data.CurrentPrayerDetails
 import com.app.athkar.home.data.City
@@ -143,44 +143,40 @@ class HomeViewModel @Inject constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     fusedLocationClient =
                         LocationServices.getFusedLocationProviderClient(resourceProvider.getApplicationContext())
-                    fusedLocationClient.lastLocation
-                        .addOnSuccessListener { location: Location? ->
+                    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                             if (location != null) {
                                 val latLng = LatLng(location.latitude, location.longitude)
                                 val closestCity = getClosestCity(latLng)
                                 locationSelectionPreferences.setIsLocationSelected()
                                 locationSelectionPreferences.setCurrentLocation(closestCity)
                                 _state.value = state.value.copy(
-                                    location = closestCity.name_en,
-                                    showDialog = false
+                                    location = closestCity.name_en, showDialog = false
                                 )
                                 getPrayerTimes(closestCity.file)
                                 setupAlarms()
                             } else {
                                 emitEvent(HomeUIEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_get_location)))
                             }
-                        }
-                        .addOnFailureListener {
+                        }.addOnFailureListener {
                             emitEvent(HomeUIEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_get_location)))
                         }
                 }
             }
 
             is HomeViewModelEvent.SelectManualLocation -> {
-
+                locationSelectionPreferences.setIsLocationSelected()
+                val city = locationSelectionPreferences.currentLocation ?: return
+                _state.value = state.value.copy(location = city.name_en)
+                getPrayerTimes(city.file)
+                setupAlarms()
             }
 
             is HomeViewModelEvent.UpdateLocation -> {
                 locationSelectionPreferences.setCurrentLocation(event.city)
             }
 
-            is HomeViewModelEvent.UpdateShowDialog -> {
-                locationSelectionPreferences.setIsLocationSelected()
-                val city = locationSelectionPreferences.currentLocation ?: return
-                _state.value = state.value.copy(location = city.name_en)
-                getPrayerTimes(city.file)
-                setupAlarms()
-                _state.value = state.value.copy(showDialog = event.showDialog)
+            is HomeViewModelEvent.DismissDialog -> {
+                _state.value = state.value.copy(showDialog = false)
             }
         }
     }
@@ -258,8 +254,7 @@ class HomeViewModel @Inject constructor(
     private fun scheduleNotifications(prayerList: MutableList<Date>, prayerName: PrayerName) {
         prayerList.forEach { date ->
             val alarmItem = AlarmItem(
-                date,
-                prayerName.name
+                date, prayerName.name
             )
             alarmScheduler.schedule(alarmItem)
         }

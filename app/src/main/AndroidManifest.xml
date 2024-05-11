@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".edit_prayer.broadcast_receiver.AlarmReceiver"
+        <receiver android:name=".shared.broadcast_receiver.AlarmReceiver"
             android:exported="false">
         </receiver>
     </application>

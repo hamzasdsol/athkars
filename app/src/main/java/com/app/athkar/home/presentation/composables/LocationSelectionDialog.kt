@@ -1,7 +1,5 @@
 package com.app.athkar.home.presentation.composables
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import com.app.athkar.R
 import com.app.athkar.home.presentation.HomeState
 import com.app.athkar.home.presentation.HomeViewModelEvent
@@ -52,7 +49,7 @@ fun LocationSelectionDialog(
 
     BasicAlertDialog(
         modifier = Modifier.fillMaxWidth(),
-        onDismissRequest = { onEvent(HomeViewModelEvent.UpdateShowDialog(false)) }
+        onDismissRequest = { onEvent(HomeViewModelEvent.DismissDialog) }
     ) {
         Column(
             modifier = Modifier
@@ -101,7 +98,8 @@ fun LocationSelectionDialog(
                         .padding(16.dp)
                         .clickable {
                             if (state.location.isNotBlank()) {
-                                onEvent(HomeViewModelEvent.UpdateShowDialog(false))
+                                onEvent(HomeViewModelEvent.DismissDialog)
+                                onEvent(HomeViewModelEvent.SelectManualLocation)
                             } else
                                 Toast
                                     .makeText(

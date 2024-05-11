@@ -1,4 +1,4 @@
-package com.app.athkar.edit_prayer.broadcast_receiver
+package com.app.athkar.shared.broadcast_receiver
 
 import android.Manifest
 import android.app.Notification

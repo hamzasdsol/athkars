@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import com.app.athkar.core.util.DefaultSharedPreferencesManager
 import com.app.athkar.core.util.LocationSelectionPreferences
-import com.app.athkar.core.util.alarm.DefaultPrayersAlarmPreferences
-import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
+import com.app.athkar.shared.alarm.DefaultPrayersAlarmPreferences
+import com.app.athkar.shared.alarm.PrayersAlarmPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.app.athkar.core.util.alarm
+package com.app.athkar.shared.alarm
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -6,7 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.app.athkar.edit_prayer.broadcast_receiver.AlarmReceiver
+import com.app.athkar.shared.broadcast_receiver.AlarmReceiver
 
 class AndroidAlarmScheduler(
     private val context: Context

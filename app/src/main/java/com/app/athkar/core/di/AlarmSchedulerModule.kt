@@ -1,8 +1,8 @@
 package com.app.athkar.core.di
 
 import android.content.Context
-import com.app.athkar.core.util.alarm.AlarmScheduler
-import com.app.athkar.core.util.alarm.AndroidAlarmScheduler
+import com.app.athkar.shared.alarm.AlarmScheduler
+import com.app.athkar.shared.alarm.AndroidAlarmScheduler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

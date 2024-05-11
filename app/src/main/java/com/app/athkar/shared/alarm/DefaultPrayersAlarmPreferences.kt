@@ -1,4 +1,4 @@
-package com.app.athkar.core.util.alarm
+package com.app.athkar.shared.alarm
 
 import android.content.SharedPreferences
 import com.app.athkar.edit_prayer.presentation.PrayerName

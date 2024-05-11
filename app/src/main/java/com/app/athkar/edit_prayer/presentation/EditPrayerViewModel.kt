@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
 import com.app.athkar.core.network.NetworkResult
 import com.app.athkar.core.util.LocationSelectionPreferences
-import com.app.athkar.core.util.alarm.AlarmItem
-import com.app.athkar.core.util.alarm.AlarmScheduler
-import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
+import com.app.athkar.shared.alarm.AlarmItem
+import com.app.athkar.shared.alarm.AlarmScheduler
+import com.app.athkar.shared.alarm.PrayersAlarmPreferences
 import com.app.athkar.core.util.toPrayerDate
 import com.app.athkar.shared.data.GetPrayerTimesResponse
 import com.app.athkar.core.di.ResourceProvider
@@ -136,7 +136,6 @@ class EditPrayerViewModel @Inject constructor(
 
     fun onEvent(event: EditPrayerViewModelEvent) {
         when (event) {
-            EditPrayerViewModelEvent.Save -> {}
             is EditPrayerViewModelEvent.SetPrayerAlarmPreference -> {
                 prayersAlarmPreferences.savePrayerNotification(event.key.name, event.value)
                 _state.value = state.value.copy(

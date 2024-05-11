@@ -1,13 +1,10 @@
 package com.app.athkar.shared.data
 
-import android.os.Parcelable
 import kotlinx.parcelize.IgnoredOnParcel
-import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@Parcelize
 data class PrayersModel(
     val fajr: Date,
     val shuruq: Date,
@@ -15,7 +12,7 @@ data class PrayersModel(
     val asr: Date,
     val maghrib: Date,
     val isha: Date
-): Parcelable {
+) {
     @IgnoredOnParcel
     private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
@@ -29,10 +26,6 @@ data class PrayersModel(
             currentTime.after(maghrib) && currentTime.before(isha) -> Pair(Pair("Maghrib", timeFormat.format(maghrib)), Pair("Isha", timeFormat.format(isha)))
             else -> Pair(Pair("Isha", timeFormat.format(isha)), Pair("Fajr", timeFormat.format(fajr)))
         }
-    }
-
-    fun toFormattedString(date: String): String {
-        return timeFormat.format(date)
     }
 
 }

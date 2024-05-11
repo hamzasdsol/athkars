@@ -1,4 +1,4 @@
-package com.app.athkar.core.util.alarm
+package com.app.athkar.shared.alarm
 
 interface AlarmScheduler {
     fun schedule(item: AlarmItem)
