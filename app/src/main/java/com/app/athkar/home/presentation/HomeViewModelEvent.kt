@@ -1,6 +1,6 @@
 package com.app.athkar.home.presentation
 
-import com.app.athkar.data.model.network.City
+import com.app.athkar.home.data.City
 
 sealed class HomeViewModelEvent {
     data object SelectAutoLocation: HomeViewModelEvent()

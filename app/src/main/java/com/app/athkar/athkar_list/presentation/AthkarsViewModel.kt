@@ -6,9 +6,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
-import com.app.athkar.data.model.network.Athkar
-import com.app.athkar.di.ResourceProvider
-import com.app.athkar.domain.repository.AppRepository
+import com.app.athkar.athkar_list.data.Athkar
+import com.app.athkar.athkar_list.domain.AthkarsRepository
+import com.app.athkar.core.network.NetworkResult
+import com.app.athkar.core.di.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -18,12 +19,11 @@ import java.io.IOException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
-import com.app.athkar.domain.Result
 
 @HiltViewModel
 class AthkarsViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
-    private val appRepository: AppRepository
+    private val athkarsRepository: AthkarsRepository
 ): ViewModel() {
 
     private val _state = mutableStateOf(AthkarListState())
@@ -32,26 +32,18 @@ class AthkarsViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<AthkarListUIEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    fun onEvent(event: AthkarsViewModelEvent) {
-        when(event) {
-            AthkarsViewModelEvent.Back -> {}
-            AthkarsViewModelEvent.Export -> {}
-            AthkarsViewModelEvent.Next -> {}
-        }
-    }
-
     init {
         getAthkars()
     }
 
     private fun getAthkars() {
         viewModelScope.launch {
-            when(val athkarsResponse = appRepository.getAthkars()) {
-                is Result.Success -> {
+            when(val athkarsResponse = athkarsRepository.getAthkars()) {
+                is NetworkResult.Success -> {
                     val athkarsList = athkarsResponse.data.athkars
                     _state.value = _state.value.copy(athkars = SnapshotStateList<Athkar>().apply { addAll(athkarsList) })
                 }
-                is Result.Failure -> {
+                is NetworkResult.Failure -> {
                     handleError(athkarsResponse.exception)
                 }
             }

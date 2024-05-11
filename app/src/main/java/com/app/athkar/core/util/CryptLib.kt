@@ -95,7 +95,7 @@ object CryptLib {
     private fun keySHA256(): String {
         val resultString: String
         val md = MessageDigest.getInstance("SHA-256")
-        md.update(Constants.ENCRYPTED_KEY.toByteArray(charset("UTF-8")))
+        md.update(Constants.DECRYPTION_KEY.toByteArray(charset("UTF-8")))
         val digest = md.digest()
         val result = StringBuilder()
         for (b in digest) {

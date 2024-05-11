@@ -16,7 +16,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import com.app.athkar.MainActivity
+import com.app.athkar.ui.activity.MainActivity
 import com.app.athkar.R
 
 class AlarmReceiver : BroadcastReceiver() {

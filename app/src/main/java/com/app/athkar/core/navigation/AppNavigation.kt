@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.app.athkar.MainActivityViewModel
+import com.app.athkar.ui.activity.MainActivityViewModel
 import com.app.athkar.athkar_list.presentation.AthkarListScreen
 import com.app.athkar.athkar_list.presentation.AthkarsViewModel
 import com.app.athkar.edit_prayer.presentation.EditPrayerScreen
@@ -69,7 +69,6 @@ fun AppNavigation(mainActivityViewModel: MainActivityViewModel) {
             val athkarsViewModel: AthkarsViewModel = hiltViewModel()
             AthkarListScreen(
                 state = athkarsViewModel.state.value,
-                onEvent = athkarsViewModel::onEvent,
                 onMainEvent = mainActivityViewModel::onEvent,
                 uiEvent = athkarsViewModel.uiEvent,
                 navigateTo = {

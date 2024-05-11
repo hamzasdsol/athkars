@@ -41,7 +41,7 @@ import androidx.media3.ui.PlayerView
 import com.app.athkar.R
 import com.app.athkar.core.composables.LoadingDialog
 import com.app.athkar.core.ui.AppToolbar
-import com.app.athkar.data.model.network.Athkar
+import com.app.athkar.athkar_list.data.Athkar
 import com.app.athkar.export.enums.EXPORTTYPE
 import com.app.athkar.export.presentation.composables.CanvasImage
 import com.app.athkar.ui.theme.ControlsColor

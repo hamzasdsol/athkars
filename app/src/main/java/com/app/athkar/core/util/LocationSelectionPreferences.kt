@@ -1,6 +1,6 @@
 package com.app.athkar.core.util
 
-import com.app.athkar.data.model.network.City
+import com.app.athkar.home.data.City
 
 interface LocationSelectionPreferences {
     fun setIsLocationSelected()

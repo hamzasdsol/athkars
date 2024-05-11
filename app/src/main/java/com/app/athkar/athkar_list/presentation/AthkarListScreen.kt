@@ -36,7 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.app.athkar.MainActivityModelEvent
+import com.app.athkar.ui.activity.MainActivityModelEvent
 import com.app.athkar.R
 import com.app.athkar.athkar_list.presentation.composables.ExportPopupMenu
 import com.app.athkar.athkar_list.presentation.composables.PagerControls
@@ -57,7 +57,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun AthkarListScreen(
     state: AthkarListState,
-    onEvent: (AthkarsViewModelEvent) -> Unit = {},
     onMainEvent: (MainActivityModelEvent) -> Unit = {},
     uiEvent: SharedFlow<AthkarListUIEvent> = MutableSharedFlow(),
     navigateTo: (String) -> Unit = {},

@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.exoplayer.ExoPlayer
 import com.app.athkar.R
-import com.app.athkar.di.ResourceProvider
-import com.app.athkar.domain.repository.AppRepository
+import com.app.athkar.core.di.ResourceProvider
 import com.app.athkar.export.audio_downloader.AudioDownloaderService
 import com.app.athkar.export.util.createBitmapFromPicture
 import com.app.athkar.export.util.createVideoFromImageAndAudio
@@ -26,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ExportViewModel @Inject constructor(
     private val audioDownloaderService: AudioDownloaderService,
-    private val appRepository: AppRepository,
     private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
@@ -68,7 +66,7 @@ class ExportViewModel @Inject constructor(
                 viewModelScope.launch {
                     val bitmap: Bitmap = event.picture.createBitmapFromPicture()
                     try {
-                        val uri = bitmap.saveToDisk(event.context)
+                        bitmap.saveToDisk(event.context)
                         _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.image_saved)))
                     } catch (e: Exception) {
                         _uiEvent.emit(ExportScreenUiEvent.ShowMessage(resourceProvider.getString(R.string.failed_to_save)))

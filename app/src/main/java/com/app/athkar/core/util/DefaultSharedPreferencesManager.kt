@@ -1,7 +1,7 @@
 package com.app.athkar.core.util
 
 import android.content.SharedPreferences
-import com.app.athkar.data.model.network.City
+import com.app.athkar.home.data.City
 import com.google.gson.Gson
 import javax.inject.Inject
 

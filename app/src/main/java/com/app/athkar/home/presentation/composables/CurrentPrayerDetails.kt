@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.athkar.R
-import com.app.athkar.data.model.CurrentPrayerDetails
+import com.app.athkar.home.data.CurrentPrayerDetails
 import com.app.athkar.home.presentation.HomeState
 import com.app.athkar.ui.theme.AthkarTheme
 import com.app.athkar.ui.theme.CardBackground

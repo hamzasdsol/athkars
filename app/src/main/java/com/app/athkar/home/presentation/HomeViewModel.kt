@@ -7,20 +7,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
+import com.app.athkar.core.network.NetworkResult
 import com.app.athkar.core.util.LocationSelectionPreferences
 import com.app.athkar.core.util.alarm.AlarmItem
 import com.app.athkar.core.util.alarm.AlarmScheduler
 import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
 import com.app.athkar.core.util.toPrayerDate
-import com.app.athkar.data.model.CurrentPrayerDetails
-import com.app.athkar.data.model.network.City
-import com.app.athkar.data.model.network.GetCitiesResponse
-import com.app.athkar.data.model.network.GetPrayerTimesResponse
-import com.app.athkar.data.model.toPrayersModel
-import com.app.athkar.di.ResourceProvider
-import com.app.athkar.domain.Result
-import com.app.athkar.domain.repository.AppRepository
+import com.app.athkar.home.data.CurrentPrayerDetails
+import com.app.athkar.home.data.City
+import com.app.athkar.home.data.GetCitiesResponse
+import com.app.athkar.shared.data.GetPrayerTimesResponse
+import com.app.athkar.shared.data.toPrayersModel
+import com.app.athkar.core.di.ResourceProvider
 import com.app.athkar.edit_prayer.presentation.PrayerName
+import com.app.athkar.home.domain.HomeRepository
+import com.app.athkar.shared.domain.PrayersRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -44,7 +45,8 @@ import kotlin.math.sqrt
 class HomeViewModel @Inject constructor(
     private val locationSelectionPreferences: LocationSelectionPreferences,
     private val resourceProvider: ResourceProvider,
-    private val appRepository: AppRepository,
+    private val homeRepository: HomeRepository,
+    private val prayersRepository: PrayersRepository,
     private val alarmScheduler: AlarmScheduler,
     private val prayersAlarmPreferences: PrayersAlarmPreferences
 ) : ViewModel() {
@@ -77,8 +79,8 @@ class HomeViewModel @Inject constructor(
 
     private fun getPrayerTimes(currentLocation: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val prayerTimesResponse = appRepository.getPrayerTimes(currentLocation)) {
-                is Result.Success -> {
+            when (val prayerTimesResponse = prayersRepository.getPrayerTimes(currentLocation)) {
+                is NetworkResult.Success -> {
                     val response: GetPrayerTimesResponse = prayerTimesResponse.data
                     val prayerTimes = response.prayerTimes
                     prayerTimesMap.clear()
@@ -101,7 +103,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
 
-                is Result.Failure -> {
+                is NetworkResult.Failure -> {
                     handleError(prayerTimesResponse.exception)
                 }
             }
@@ -110,8 +112,8 @@ class HomeViewModel @Inject constructor(
 
     private fun getCities() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val citiesResponse = appRepository.getCities()) {
-                is Result.Success -> {
+            when (val citiesResponse = homeRepository.getCities()) {
+                is NetworkResult.Success -> {
                     val response: GetCitiesResponse = citiesResponse.data
                     val cities: List<City> = response.cities
                     this@HomeViewModel.cities.apply {
@@ -121,7 +123,7 @@ class HomeViewModel @Inject constructor(
                     _state.value = state.value.copy(cities = cities)
                 }
 
-                is Result.Failure -> {
+                is NetworkResult.Failure -> {
                     handleError(citiesResponse.exception)
                 }
             }

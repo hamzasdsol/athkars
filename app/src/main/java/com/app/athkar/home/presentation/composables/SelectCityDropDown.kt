@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.app.athkar.data.model.network.City
+import com.app.athkar.home.data.City
 import com.app.athkar.ui.theme.AthkarTheme
 
 @Composable

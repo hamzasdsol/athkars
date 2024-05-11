@@ -1,8 +1,8 @@
 package com.app.athkar.home.presentation
 
 import com.app.athkar.R
-import com.app.athkar.data.model.CurrentPrayerDetails
-import com.app.athkar.data.model.network.City
+import com.app.athkar.home.data.CurrentPrayerDetails
+import com.app.athkar.home.data.City
 
 data class HomeState(
     val showDialog: Boolean = false,

@@ -5,15 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.athkar.R
+import com.app.athkar.core.network.NetworkResult
 import com.app.athkar.core.util.LocationSelectionPreferences
 import com.app.athkar.core.util.alarm.AlarmItem
 import com.app.athkar.core.util.alarm.AlarmScheduler
 import com.app.athkar.core.util.alarm.PrayersAlarmPreferences
 import com.app.athkar.core.util.toPrayerDate
-import com.app.athkar.data.model.network.GetPrayerTimesResponse
-import com.app.athkar.di.ResourceProvider
-import com.app.athkar.domain.Result
-import com.app.athkar.domain.repository.AppRepository
+import com.app.athkar.shared.data.GetPrayerTimesResponse
+import com.app.athkar.core.di.ResourceProvider
+import com.app.athkar.shared.domain.PrayersRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,7 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class EditPrayerViewModel @Inject constructor(
     private val prayersAlarmPreferences: PrayersAlarmPreferences,
-    private val appRepository: AppRepository,
+    private val prayersRepository: PrayersRepository,
     private val resourceProvider: ResourceProvider,
     private val locationSelectionPreferences: LocationSelectionPreferences,
     private val alarmScheduler: AlarmScheduler
@@ -45,32 +45,14 @@ class EditPrayerViewModel @Inject constructor(
     private val prayerTimesMap = mutableMapOf<String, List<String>>()
 
     init {
-        val data = prayersAlarmPreferences.prayerAlarmState()
-        val prayers = mutableListOf<Prayer>()
-        data.forEach {
-            prayers.add(
-                Prayer(
-                    it.first,
-                    iqamaTime = "",
-                    prayerTime = "",
-                    isAlarmEnabled = it.second
-                )
-            )
-        }
-
-        _state.value = state.value.copy(
-            prayers = prayers
-        )
-
         getPrayerTimes()
-
     }
 
     private fun getPrayerTimes() {
         viewModelScope.launch(Dispatchers.IO) {
             val currentLocation = locationSelectionPreferences.currentLocation?.file ?: "amman"
-            when (val prayerTimesResponse = appRepository.getPrayerTimes(currentLocation)) {
-                is Result.Success -> {
+            when (val prayerTimesResponse = prayersRepository.getPrayerTimes(currentLocation)) {
+                is NetworkResult.Success -> {
                     val response: GetPrayerTimesResponse = prayerTimesResponse.data
                     val prayerTimes = response.prayerTimes
                     prayerTimesMap.clear()
@@ -101,7 +83,7 @@ class EditPrayerViewModel @Inject constructor(
                     }
                 }
 
-                is Result.Failure -> {
+                is NetworkResult.Failure -> {
                     handleError(prayerTimesResponse.exception)
                 }
             }
